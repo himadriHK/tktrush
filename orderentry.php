@@ -75,7 +75,8 @@ return $theValue;
 }
 function getDtcmPriceVal($id,$ticket_prices){
 	foreach ($ticket_prices['TicketPrices']['Prices'] as $price){
-		if($price['PriceId']==$id) {
+		//var_dump($price);
+		if($price['PriceId'].$price['PriceTypeCode']==$id) {
 			return $price;
 		}
 	}
@@ -113,7 +114,7 @@ $_SESSION['custid'] = mysql_insert_id();
 
 ##Update customer data
 if(isset($_SESSION['Customer']['cust_id'])) {
-    $cust_sql = "UPDATE customers set country='" . $_POST['country'] . "', city='" . $_POST['city'] . "', mobile='" . $_POST['mobile'] . "', fname='" . $_POST['fname'] . "', lname='" . $_POST['lname'] . "', address='" . $_POST['address'] . "' where cust_id='" . $_SESSION['Customer']['cust_id'] . "'";
+    $cust_sql = "UPDATE customers set city='" . $_POST['city'] . "', mobile='" . $_POST['mobile'] . "', fname='" . $_POST['fname'] . "', lname='" . $_POST['lname'] . "', address='" . $_POST['address'] . "' where cust_id='" . $_SESSION['Customer']['cust_id'] . "'";
 
     mysql_query($cust_sql);
 
@@ -131,11 +132,12 @@ if(isset($_SESSION['Customer']['cust_id'])) {
 
 $eventid = $_POST['eid'];
 
-$query_eventRs = sprintf("SELECT events.* FROM events WHERE events.tid=%s", $eventid);
+//$query_eventRs = sprintf("SELECT events.* FROM events WHERE events.tid=%s", $eventid);
+//
+//$eventRs = mysql_query($query_eventRs, $eventscon) or die(mysql_error());
+$eid=filter_var($_POST['eid'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 
-$eventRs = mysql_query($query_eventRs, $eventscon) or die(mysql_error());
-
-$row_eventRs = mysql_fetch_assoc($eventRs);
+$row_eventRs=getEventDetails($eid);
 
 $_SESSION['custid']=$_SESSION['Customer']['cust_id'];
 
@@ -166,36 +168,39 @@ $tot_tickets=0;
 $tot_ctickets=0;
 
 $total_price=0;
-if($_SERVER['REMOTE_ADDR']=='106.220.145.16'){
-	$row_eventRs['dtcm_approved']='Yes';
-	$row_eventRs['dtcm_code'] = 'ETES3EL';
-}
-if($row_eventRs['dtcm_approved']=='Yes' && $row_eventRs['dtcm_code']!='' ) {
+
+if(true){//$row_eventRs['dtcm_approved']=='Yes' && $row_eventRs['dtcm_code']!='' ) {
 	$eventcode = $row_eventRs['dtcm_code'];
-$prices = $dtcm_->get_performance_prices($eventcode);
+	$_SESSION['dtcm_event']=$row_eventRs['dtcm_approved'];
+	$_SESSION['dtcm_code']=$row_eventRs['dtcm_code'];
+	$_SESSION['eid']=$eid;
+$prices = getEventPrices($eid);
 $_SESSION['perf_code']=$eventcode;
-$ticket_prices = json_decode($prices,true);
+$ticket_prices = $prices;
 }
 $basket_info=array();
 $b=1;
-$pcats=json_decode($dtcm_->get_performance_prices($eventcode),true);
+$pcats=getEventPrices($eid);
+//var_dump($_POST['tickets']);
 foreach($_POST['tickets'] as $key=>$val)
 
 	{
 		$tot_tickets=$tot_tickets+$val;
 		if($val){
 
-			$pids[$key]=$key;
+			$pids[$key]=substr($key,0,-1);
 			$price_values = getDtcmPriceVal($key,$ticket_prices);
+			var_dump($ticket_prices);
+			var_dump($pids);
             $total_price=$total_price+($price_values['PriceNet']/100*$val);
                   
 		}
 	}
-	$total_price=$total_price+$_POST['charges']+($total_price*0.05)+2;
+	//$total_price=$total_price+($total_price*0.05)+2;
 
 $pids=implode(",",$pids);
 
-//die(var_dump($pids));
+//var_dump($pids);
 
 //var_dump($total_price);
 //var_dump($_POST);
@@ -236,72 +241,88 @@ $tickets=$_POST['tickets'];
 if(!empty($basket_info)){
 	$args=array($basket_info,'');
 	//var_dump($args[0]['demand']);
+	if($_SESSION['dtcm_event']=='Yes'){
 	$basket_details = json_decode($dtcm_->post_demands_to_dtcm($args),true);
 	//var_dump(print_r($basket_details));
-	
 	$basket_id = $basket_details['Id'];
 	$_SESSION['dtcm_order_id']=$basket_id;
-	$ccomp = 0;
-	$zcomp = 0;
-	if(isset($_POST['comp_tickets']))
-	$ccomp = $_POST['comp_tickets'];
-
-	if(isset($_POST['compz_tickets']))
-	$zcomp = $_POST['compz_tickets'];
+	
+	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,0,$basket_id,"");
+	
+	$_SESSION['orderid']=$order_id;
+	$_SESSION['total']=$total_price;
+	}
+	elseif($_SESSION['dtcm_event']=='No')
+	{
+		$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,0,"-1","");
+		
+		$_SESSION['orderid']=$order_id;
+		$_SESSION['total']=$total_price;
+		//bookTicketForEvent($cust_id,$eventcode,$pid,$partner_id,$order_number,$transaction_code,$selected_seats,$charges,$ticket_price,$order_date,$event_date,$payment_type,$tickets,$ctickets,$basket_id,$extra_services)
+	}
+		
+	
+	//$ccomp = 0;
+	//$zcomp = 0;
+	//if(isset($_POST['comp_tickets']))
+	//$ccomp = $_POST['comp_tickets'];
+    //
+	//if(isset($_POST['compz_tickets']))
+	//$zcomp = $_POST['compz_tickets'];
 
 	//$seat_arr['tickets']=$_POST['tickets'];
 	
 	//$seat_arr['ctickets']=$_POST['ctickets'];
 	
-	$selected_seats=serialize($basket_details['Offers'][0]['Seats']);
+	//$selected_seats=serialize($basket_details['Offers'][0]['Seats']);
+	//
+	//$sessiondate = $row_eventRs['date_start'];
+	//$order_number=mt_rand(100000, 999999);
+	//if($sessiondate=="Ongoing"){ $sessiondate = date("Y-m-d"); }
+    //    
+    //$_SESSION['event_id']=$_POST['eid'];   
+	//
+	//$insertSQL = sprintf("INSERT INTO ticket_orders (order_number,cust_id, tid,selected_seats, pid, ticket_price,charges,order_date, event_date, payment_type, tickets, ctickets,uniquecode,verifycode,basket_id,ccomp,zcomp) VALUES (%s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s)",
+	//
+	//GetSQLValueString($order_number, "text"),
+	//
+	//GetSQLValueString($_SESSION['custid'], "int"),
+	//
+	//GetSQLValueString($_POST['eid'], "int"),
+	//
+	//GetSQLValueString($selected_seats, "text"),
+	//
+	//GetSQLValueString($pids, "text"),
+	//
+	//GetSQLValueString($total_price, "text"),
+	//
+	//GetSQLValueString("0", "text"),
+	//
+	//GetSQLValueString(date("Y-m-d"), "date"),
+	//
+	//GetSQLValueString($sessiondate, "date"),
+	//
+	//GetSQLValueString($_POST['paytype'], "text"),
+	//
+	//GetSQLValueString($tot_tickets, "int"),
+	//
+	//GetSQLValueString($tot_ctickets, "int"),
+	//
+	//GetSQLValueString($uniquecode, "text"),
+	//GetSQLValueString($verifycode, "text"),
+	//GetSQLValueString($basket_id, "text"),
+	//GetSQLValueString($ccomp, "text"),
+	//GetSQLValueString($zcomp, "text"));
+	//
+	//
+	//
+	//$Result1 = mysql_query($insertSQL, $eventscon) or die(mysql_error());
 	
-	$sessiondate = $_POST["sessiondate"];
-	$order_number=mt_rand(100000, 999999);
-	if($sessiondate=="Ongoing"){ $sessiondate = date("Y-m-d"); }
-        
-    $_SESSION['event_id']=$_POST['eid'];   
-	
-	$insertSQL = sprintf("INSERT INTO ticket_orders (order_number,cust_id, tid,selected_seats, pid, ticket_price,charges,order_date, event_date, payment_type, tickets, ctickets,uniquecode,verifycode,basket_id,ccomp,zcomp) VALUES (%s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s)",
-	
-	GetSQLValueString($order_number, "text"),
-	
-	GetSQLValueString($_SESSION['custid'], "int"),
-	
-	GetSQLValueString($_POST['eid'], "int"),
-	
-	GetSQLValueString($selected_seats, "text"),
-	
-	GetSQLValueString($pids, "text"),
-	
-	GetSQLValueString($total_price, "text"),
-	
-	GetSQLValueString($_POST['charges'], "text"),
-	
-	GetSQLValueString(date("Y-m-d"), "date"),
-	
-	GetSQLValueString($sessiondate, "date"),
-	
-	GetSQLValueString($_POST['paytype'], "text"),
-	
-	GetSQLValueString($tot_tickets, "int"),
-	
-	GetSQLValueString($tot_ctickets, "int"),
-	
-	GetSQLValueString($uniquecode, "text"),
-	GetSQLValueString($verifycode, "text"),
-	GetSQLValueString($basket_id, "text"),
-	GetSQLValueString($ccomp, "text"),
-	GetSQLValueString($zcomp, "text"));
-	
-	
-	
-	$Result1 = mysql_query($insertSQL, $eventscon) or die(mysql_error());
-	
-	if($Result1){
-	
-	$_SESSION['orderid'] = mysql_insert_id();
-
-	}
+	//if($Result1){
+	//
+	//$_SESSION['orderid'] = mysql_insert_id();
+    //
+	//}
 }
 } else {
 if($_POST['tickets'])

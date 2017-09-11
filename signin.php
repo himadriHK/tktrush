@@ -98,9 +98,9 @@ $(document).ready(function(e) {
 
 <div class="shows-box">
 
-<?php if($_SESSION['success']){?><h2 style="color:#006666;font-size: 21px;padding: 14px 0 12px;"><?php echo $_SESSION['success'];unset($_SESSION['success']);?></h2><?php }?>
+<?php if(@$_SESSION['success']){?><h2 style="color:#006666;font-size: 21px;padding: 14px 0 12px;"><?php echo @$_SESSION['success'];unset($_SESSION['success']);?></h2><?php }?>
 
-<?php if($_SESSION['error']){?><h2 style="color:#FF0000;font-size: 21px;padding: 14px 0 12px;"><?php echo $_SESSION['error'];unset($_SESSION['error']);?></h2><?php }?>
+<?php if(@$_SESSION['error']){?><h2 style="color:#FF0000;font-size: 21px;padding: 14px 0 12px;"><?php echo @$_SESSION['error'];unset($_SESSION['error']);?></h2><?php }?>
 
 <h1>Sign In</h1>
 

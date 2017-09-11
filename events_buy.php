@@ -3,7 +3,7 @@ include('dtcm_api/dtcm_api.php'); ?>
 <?php include("functions.php"); ?>
 <?php include("config.php"); ?>
 <?php
-
+$eid=filter_var($_GET['eid'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 //require_once 'softix-ticket-price.php';
 
 //var_dump($_SESSION['softix_token']);
@@ -229,7 +229,7 @@ if($_COOKIE['city_id']){
 			}
 	}
 }
-$seat_type_arr=get_set_type();
+//$seat_type_arr=get_set_type();
 
 if(empty($_SESSION['Customer']) && empty($_SESSION['PP_UserId']))
 {
@@ -268,111 +268,115 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "form1")) {
 }
 */
 ##Start of javascrpt functions
-function gettickets($eventid){
-	$ticketid_ticketsRs = $eventid=$_GET['eid'];
-	//echo $ticketid_ticketsRs;
-	$query_ticketsRs = sprintf("SELECT event_prices.* FROM event_prices WHERE event_prices.tid = %s ORDER BY event_prices.price asc", $ticketid_ticketsRs);
-	//echo $query_ticketsRs;
-	$ticketsRs = mysql_query($query_ticketsRs) or die(mysql_error());
-	$row_ticketsRs = mysql_fetch_assoc($ticketsRs);
-	//$totalRows_ticketsRs = mysql_num_rows($ticketsRs);
-	$soption = "";
-	$i=0;
-        
-	echo "<script language='javascript'>\n";
-	echo "var pid=new Array();\n";
-	echo "var stand=new Array();\n";
-	echo "var currency=new Array();\n";
-	echo "var price=new Array();\n";
-	echo "var cprice=new Array();\n";
-	echo "var ticket=new Array();\n";
-	echo "var cticket=new Array();\n";
-	do {
-		$query_oticketsRs = sprintf("select sum(tickets) adult, sum(ctickets) child from ticket_orders where tid = %s and ticket_price = '%s'", $ticketid_ticketsRs,$row_ticketsRs['stand']);
-		//echo $query_oticketsRs;
-		$oticketsRs = mysql_query($query_oticketsRs) or die(mysql_error());
-		$row_oticketsRs = mysql_fetch_assoc($oticketsRs);
-                
-global $single_price;
-global $ano_price;
-$row_ticketsRs['price'] = $single_price;
-//var_dump($ano_price);
-$row_ticketsRs['cprice'] = $ano_price;
-		echo "pid[".$i."]='".$row_ticketsRs['pid']."';\n";
-		echo "stand[".$i."]='".$row_ticketsRs['stand']."';\n";
-		echo "currency[".$i."]='".$row_ticketsRs['currency']."';\n";
-		echo "price[".$row_ticketsRs['pid']."]='".$row_ticketsRs['price']."';\n";
-		echo "cprice[".$row_ticketsRs['pid']."]='".$row_ticketsRs['cprice']."';\n";
-		if ($row_oticketsRs['adult'] < $row_ticketsRs['ticket']){
-			echo "ticket[".$i."]='".$row_ticketsRs['ticket']."';\n";
-		} else {
-			echo "ticket[".$i."]=0;\n";
-		}
-		if ($row_oticketsRs['child'] < $row_ticketsRs['cticket']){
-			echo "cticket[".$i."]='".$row_ticketsRs['cticket']."';\n";
-		} else {
-			echo "cticket[".$i."]=0;\n";
-		}
-		$i++;
-	} while ($row_ticketsRs = mysql_fetch_assoc($ticketsRs));
-	echo "</script>";
-	mysql_free_result($ticketsRs);
-}
-function getdtcmprices($eventcode){
-	//if(isset($_SESSION['access_token']) && (time()-$_SESSION['token_addtime'])<$_SESSION['token_lifetime']){
-	if(isset($_SESSION['access_token'])){
-		$access_token = $_SESSION['access_token'];
-	} else{
-	$code_details = Dtcm::get_code();
-	if($code_details['access_token']!=''){
-	$access_token=$code_details['access_token'];
-	$_SESSION['access_token']=$access_token;
-	$_SESSION['token_lifetime']=$code_details['expires'];
-	$_SESSION['token_addtime']=time();
-	}
-	}
-	if($access_token)
-	$prices = Dtcm::get_prices($access_token,$eventcode);
-	$ticket_prices = json_decode($prices,true);
-	
-	$soption = "";
-	$i=0;
-        $price_data['PriceNet'] = $single_price;
-	echo "<script language='javascript'>\n";
-	echo "var pid=new Array();\n";
-	echo "var stand=new Array();\n";
-	echo "var currency=new Array();\n";
-	echo "var price=new Array();\n";
-	echo "var cprice=new Array();\n";
-	echo "var ticket=new Array();\n";
-	echo "var cticket=new Array();\n";
-	foreach ($ticket_prices['PriceCategories'] as $stand){
-		foreach ($ticket_prices['PriceTypes'] as $priceType){
-		if($priceType['PriceTypeCode'] == 'Q'){
-		$price_data = get_priceByCatType($stand['PriceCategoryId'],$priceType['PriceTypeId'],$ticket_prices);
-		if($price_data !='' && $price_data['PriceNet']>0 ){
-		echo "pid[".$i."]='".$price_data['PriceId']."';\n";
-		echo "stand[".$i."]='".$stand['PriceCategoryId']."';\n";
-		echo "currency[".$i."]='AED';\n";
-		echo "price[".$price_data['PriceId']."]='".$price_data['PriceNet']."';\n";
-		
-		
-			echo "ticket[".$i."]=10;\n";
-		
-			echo "cticket[".$i."]=0;\n";
-		
-		$i++;
-		}
-		}
-		}
-	} 
-	echo "</script>";
-	
-	
-	
-}
+//function gettickets($eventid){
+//	$ticketid_ticketsRs = $eventid=$_GET['eid'];
+//	//echo $ticketid_ticketsRs;
+//	$query_ticketsRs = sprintf("SELECT event_prices.* FROM event_prices WHERE event_prices.tid = %s ORDER BY event_prices.price asc", $ticketid_ticketsRs);
+//	//echo $query_ticketsRs;
+//	$ticketsRs = mysql_query($query_ticketsRs) or die(mysql_error());
+//	$row_ticketsRs = mysql_fetch_assoc($ticketsRs);
+//	//$totalRows_ticketsRs = mysql_num_rows($ticketsRs);
+//	$soption = "";
+//	$i=0;
+//        
+//	echo "<script language='javascript'>\n";
+//	echo "var pid=new Array();\n";
+//	echo "var stand=new Array();\n";
+//	echo "var currency=new Array();\n";
+//	echo "var price=new Array();\n";
+//	echo "var cprice=new Array();\n";
+//	echo "var ticket=new Array();\n";
+//	echo "var cticket=new Array();\n";
+//	do {
+//		$query_oticketsRs = sprintf("select sum(tickets) adult, sum(ctickets) child from ticket_orders where tid = %s and ticket_price = '%s'", $ticketid_ticketsRs,$row_ticketsRs['stand']);
+//		//echo $query_oticketsRs;
+//		$oticketsRs = mysql_query($query_oticketsRs) or die(mysql_error());
+//		$row_oticketsRs = mysql_fetch_assoc($oticketsRs);
+//                
+//global $single_price;
+//global $ano_price;
+//$row_ticketsRs['price'] = $single_price;
+////var_dump($ano_price);
+//$row_ticketsRs['cprice'] = $ano_price;
+//		echo "pid[".$i."]='".$row_ticketsRs['pid']."';\n";
+//		echo "stand[".$i."]='".$row_ticketsRs['stand']."';\n";
+//		echo "currency[".$i."]='".$row_ticketsRs['currency']."';\n";
+//		echo "price[".$row_ticketsRs['pid']."]='".$row_ticketsRs['price']."';\n";
+//		echo "cprice[".$row_ticketsRs['pid']."]='".$row_ticketsRs['cprice']."';\n";
+//		if ($row_oticketsRs['adult'] < $row_ticketsRs['ticket']){
+//			echo "ticket[".$i."]='".$row_ticketsRs['ticket']."';\n";
+//		} else {
+//			echo "ticket[".$i."]=0;\n";
+//		}
+//		if ($row_oticketsRs['child'] < $row_ticketsRs['cticket']){
+//			echo "cticket[".$i."]='".$row_ticketsRs['cticket']."';\n";
+//		} else {
+//			echo "cticket[".$i."]=0;\n";
+//		}
+//		$i++;
+//	} while ($row_ticketsRs = mysql_fetch_assoc($ticketsRs));
+//	echo "</script>";
+//	mysql_free_result($ticketsRs);
+//}
+//function getdtcmprices($eventcode){
+//	//if(isset($_SESSION['access_token']) && (time()-$_SESSION['token_addtime'])<$_SESSION['token_lifetime']){
+//	if(isset($_SESSION['access_token'])){
+//		$access_token = $_SESSION['access_token'];
+//	} else{
+//	$code_details = Dtcm::get_code();
+//	if($code_details['access_token']!=''){
+//	$access_token=$code_details['access_token'];
+//	$_SESSION['access_token']=$access_token;
+//	$_SESSION['token_lifetime']=$code_details['expires'];
+//	$_SESSION['token_addtime']=time();
+//	}
+//	}
+//	if($access_token)
+//	$prices = Dtcm::get_prices($access_token,$eventcode);
+//	$ticket_prices = json_decode($prices,true);
+//	
+//	$soption = "";
+//	$i=0;
+//        $price_data['PriceNet'] = $single_price;
+//	echo "<script language='javascript'>\n";
+//	echo "var pid=new Array();\n";
+//	echo "var stand=new Array();\n";
+//	echo "var currency=new Array();\n";
+//	echo "var price=new Array();\n";
+//	echo "var cprice=new Array();\n";
+//	echo "var ticket=new Array();\n";
+//	echo "var cticket=new Array();\n";
+//	foreach ($ticket_prices['PriceCategories'] as $stand){
+//		foreach ($ticket_prices['PriceTypes'] as $priceType){
+//		if($priceType['PriceTypeCode'] == 'Q'){
+//		$price_data = get_priceByCatType($stand['PriceCategoryId'],$priceType['PriceTypeId'],$ticket_prices);
+//		if($price_data !='' && $price_data['PriceNet']>0 ){
+//		echo "pid[".$i."]='".$price_data['PriceId']."';\n";
+//		echo "stand[".$i."]='".$stand['PriceCategoryId']."';\n";
+//		echo "currency[".$i."]='AED';\n";
+//		echo "price[".$price_data['PriceId']."]='".$price_data['PriceNet']."';\n";
+//		
+//		
+//			echo "ticket[".$i."]=10;\n";
+//		
+//			echo "cticket[".$i."]=0;\n";
+//		
+//		$i++;
+//		}
+//		}
+//		}
+//	} 
+//	echo "</script>";
+//	
+//	
+//	
+//}
 function get_priceByCatType($catId,$typeId,$ticket_prices) {
 	foreach ($ticket_prices['TicketPrices']['Prices'] as $tprice){
+		//var_dump($tprice);
+		//var_dump("--".$catId);
+		//var_dump("--".$typeId);
+		
 		if($tprice['PriceCategoryId']==$catId && $tprice['PriceTypeId']==$typeId ){
 			return $tprice;
 		}
@@ -384,55 +388,25 @@ $colname_eventRS = "-1";
 if (isset($_GET['eid'])) {
 	$colname_eventRS = (get_magic_quotes_gpc()) ? $_GET['eid'] : addslashes($_GET['eid']);
 }
-mysql_select_db($database_eventscon, $eventscon);
-$query_eventRS = sprintf("SELECT * FROM events WHERE tid = %s", $colname_eventRS);
-$eventRs = mysql_query($query_eventRS, $eventscon) or die(mysql_error());
-$row_eventRs = mysql_fetch_assoc($eventRs);
-$totalRows_eventRs = mysql_num_rows($eventRs);
-mysql_select_db($database_eventscon, $eventscon);
-$query_shiplist = "SELECT * FROM shippingrates ORDER BY name ASC";
-$shiplist = mysql_query($query_shiplist, $eventscon) or die(mysql_error());
-$row_shiplist = mysql_fetch_assoc($shiplist);
-$totalRows_shiplist = mysql_num_rows($shiplist);
-##country fetching
-$sql_country = "SELECT * FROM country ORDER BY name ASC";
-$query_country = mysql_query($sql_country, $eventscon) or die(mysql_error());
-##end of country fetching
-$buy_date = "<select name='sessiondate' class='formField'>
-";
-/*if($row_eventRs['ongoing']==ONGOING) {
-$buy_date .= "<option value='".ONGOING."'>Ongoing</option>";
-}
-#added on dec 24
-else if($row_eventRs['ongoing']==GUEST)
-{
-#guest events
-$buy_date .= "<option value='".GUEST."'>Guest</option>";
-}
-else*/
-if (($row_eventRs['date_start']!="0000-00-00")&&($row_eventRs['date_end']!="0000-00-00")){
-	if($row_eventRs['date_start']>=date('Y-m-d')){
-		$start_date=$row_eventRs['date_start'];
-	}else
-	$start_date=date('Y-m-d');
-	list($year, $month, $day, $hour, $minute, $second) = explode('[-: ]', $row_eventRs['date_end']);
-	$edate = mktime($hour, $minute, $second, $month, $day, $year);
-	list($year, $month, $day, $hour, $minute, $second) = explode('[-: ]', $start_date);
-	$sdate = mktime($hour, $minute, $second, $month, $day, $year);
-	$date_diff = floor(($edate-$sdate)/86400);
-	for($i=0;$i<$date_diff+1;$i++){
-		$buy_date .= "<option value='".date("Y-m-d", mktime($hour, $minute, $second, $month, $day, $year))."'>".date("d M Y", mktime($hour, $minute, $second, $month, $day, $year))."</option>";
-		$day++;
-	}
-	//	echo "option2"." - ".$row_eventRs['date_start']." - ".$row_eventRs['date_end'];
-} else {
-	list($year, $month, $day, $hour, $minute, $second) = split('[-: ]', $row_eventRs['date_start']);
-	$sdate = mktime($hour, $minute, $second, $month, $day, $year);
-	$buy_date .= "<option value='".date("Y-m-d", mktime($hour, $minute, $second, $month, $day, $year))."'>".date("d M Y", mktime($hour, $minute, $second, $month, $day, $year))."</option>";
-	//	echo "option3";
-}
-$buy_date .= "
-</select>";
+//mysql_select_db($database_eventscon, $eventscon);
+//$query_eventRS = sprintf("SELECT * FROM events WHERE tid = %s", $colname_eventRS);
+//$eventRs = mysql_query($query_eventRS, $eventscon) or die(mysql_error());
+//$row_eventRs = mysql_fetch_assoc($eventRs);
+//$totalRows_eventRs = mysql_num_rows($eventRs);
+//mysql_select_db($database_eventscon, $eventscon);
+//$query_shiplist = "SELECT * FROM shippingrates ORDER BY name ASC";
+//$shiplist = mysql_query($query_shiplist, $eventscon) or die(mysql_error());
+//$row_shiplist = mysql_fetch_assoc($shiplist);
+//$totalRows_shiplist = mysql_num_rows($shiplist);
+//##country fetching
+//$sql_country = "SELECT * FROM country ORDER BY name ASC";
+//$query_country = mysql_query($sql_country, $eventscon) or die(mysql_error());
+//##end of country fetching
+//$buy_date = "<select name='sessiondate' class='formField'>
+
+$row_eventRs=getEventDetails($_GET['eid']);
+//var_dump($row_eventRs);
+
 $query_guidecatRs = "SELECT * FROM `banners`";
 $guidecatRs = mysql_query($query_guidecatRs, $eventscon) or die(mysql_error());
 $images = mysql_fetch_array($guidecatRs);
@@ -519,7 +493,7 @@ if(isset($_GET['eid'])){
 		<table>
 			<tr>
 				<td align="center" valign="top"><form action="orderpayment.php"
-						method="POST" name="form1" id="form1" target="_blank" onsubmit="return true;">
+						method="POST" name="form1" id="form1" target="_blank" >
 						<table width="100%" border="0" cellpadding="4" cellspacing="1">
 							<tr align="left" valign="middle">
 								<td colspan="2"><b><?php echo $row_eventRs['title']; ?> </b></td>
@@ -561,6 +535,7 @@ if(isset($_GET['eid'])){
 							</tr>
 							<?php }?>
 							<tr>
+							</br>
 								<td width="185" align="left" valign="middle" class="eventVenue">Session:
 								</td>
 								<?php if($row_eventRs['ongoing']=='4'){ ?>
@@ -575,7 +550,9 @@ if(isset($_GET['eid'])){
 								</td>
 								<?php }else{ ?>
 								<td width="288" align="left" valign="top"
-									class="eventText full_width"><?php echo $buy_date; ?></td>
+									class="eventText full_width formField"
+									style="color: #4088b8;font-style: normal;font-weight: 700;"><h4 style="margin:0px;padding:0px;color: #4088b8;">
+									<?php echo date('l jS \of F Y',strtotime($row_eventRs['date_start'])); ?></h4></td>
 									<?php } ?>
 							</tr>
 							<tr>
@@ -600,15 +577,15 @@ if(isset($_GET['eid'])){
 								}
 
 								 //gettickets($row_eventRs['tid'],$seat_type_arr);
-								if($row_eventRs['dtcm_approved']=='Yes' && $row_eventRs['dtcm_code']!='' )
+								if(true)//$row_eventRs['dtcm_approved']=='Yes' && $row_eventRs['dtcm_code']!='' )
 									{
 										global $dtcm_;
 										$eventcode = $row_eventRs['dtcm_code'];
-										$ticket_prices=json_decode($dtcm_->get_performance_prices($eventcode),true);
-										$available_prices=json_decode($dtcm_->get_performance_availabilities($eventcode),true);
+										$ticket_prices=getEventPrices($eid);//json_decode($dtcm_->get_performance_prices($eventcode),true);
+										$available_prices=getEventAvailabilities($eid);//var_dump(json_decode($dtcm_->get_performance_availabilities($eventcode),true));
 										//echo $dtcm_->get_performance_prices($eventcode);
 										//echo "HERE";
-										var_dump($ticket_prices);
+										//var_dump($ticket_prices);
 										$string = '';
 										if(!empty($ticket_prices)){
 											foreach ($ticket_prices['PriceCategories'] as $stand){
@@ -628,8 +605,9 @@ if(isset($_GET['eid'])){
 										<?php 
 											foreach ($ticket_prices['PriceTypes'] as $priceType){
 												//var_dump($priceType);
-												if($priceType['PriceTypeCode'] == 'A' || $priceType['PriceTypeCode'] == 'Q'|| $priceType['PriceTypeCode'] == 'J'){
+												if($priceType['PriceTypeCode'] == 'A' || $priceType['PriceTypeCode'] == 'Q'|| $priceType['PriceTypeCode'] == 'J'||$priceType['PriceTypeCode'] == 'C'){
 													$price_data = get_priceByCatType($stand['PriceCategoryId'],$priceType['PriceTypeId'],$ticket_prices);
+													//var_dump($price_data);
 													if(($price_data !='' && $price_data['PriceNet']>0 )){ 
 													$string .="'".$stand['PriceCategoryCode'].$price_data['PriceTypeCode']."',";
 														?>
@@ -904,7 +882,7 @@ if(isset($_GET['eid'])){
                             </tr>
                             <tr>
                             	<td align="left" valign="middle" class="eventVenueWhite">Service Charge:</td>
-                                <td><?php  echo $row_eventRs['service_charge']?><?php if($row_eventRs['dtcm_approved']=='Yes') echo ' AED'; else echo ' '.$im_final_currency; ?>
+                                <td><?php  echo $row_eventRs['service_charge']?><?php if($row_eventRs['dtcm_approved']=='Yes') echo ' AED'; else echo ' '.' AED'; ?>
                                     <input type="hidden" id="tkt_service_charges" value="<?=$row_eventRs['service_charge']?>">
                                 </td>
                             </tr>
@@ -921,54 +899,18 @@ if(isset($_GET['eid'])){
                                 <select name="extra_services" id="extra_services" onchange="getTotal()">
                                 	<option value="">Choose extra services</option>
                                     <?php  while ($row = mysql_fetch_array($extra_services, MYSQL_ASSOC)) {  ?>
-                                    <option value="<?php echo $row['id']; ?>" data-price="<?php echo $row['price']; ?>"><?php echo $row['title'].' - '.$row['price'].' '.$im_final_currency; ?></option>
+                                    <option value="<?php echo $row['id']; ?>" data-price="<?php echo $row['price']; ?>"><?php echo $row['title'].' - '.$row['price'].' '.'AED' ?></option>
                                     <?php } ?>
                                 </select>
                                 </td>
                             </tr>
                             <?php } ?>
-                            
-							<tr>
-								<td align="left" valign="middle" class="eventVenueWhite">Delivery
-									Region:</td>
-								<td align="left" valign="top" class="eventTextWhite full_width">
-									<select name="regions" id="regions" onchange="getTotal()">
-									<?php
-									do {
-										if($row_shiplist['name']=="No Delivery / Will Call")
-										{
-											$selected="selected";
-										}
-										else
-										{
-											$selected="";
-										}
-										?>
-										<option value="<?php echo $row_shiplist['rate']?>"
-										<?php echo $selected;?>>
-											<?php echo $row_shiplist['name']?>
-										</option>
-										<?php
-									} while ($row_shiplist = mysql_fetch_assoc($shiplist));
-									$rows = mysql_num_rows($shiplist);
-									if($rows > 0) {
-										mysql_data_seek($shiplist, 0);
-										$row_shiplist = mysql_fetch_assoc($shiplist);
-									}
-									?>
-								</select> <?php if($row_eventRs['ongoing']!='4'){ ?> </br>Delivery
-									Charges(Dhs.): <input name="charges" type="text"
-									class="formField" id="charges" size="2" onchange="getTotal()" />
-									<?php }else{ ?> <input name="charges" type="hidden"
-									class="formField" id="charges" value="0" /> <?php }?>
-								</td>
-							</tr>
-							<tr style="background: #fdecb2;">
+              							<tr style="background: #fdecb2;">
 								<td width="185" align="left" valign="middle"
 									class="eventVenueWhite">Total:</td>
 								<td width="288" align="left" valign="top"
 									class="eventTextWhite full_width"><input name="totalticket"
-									type="text" class="formField" id="totalticket" readonly /> <input
+									type="text" data-validation="required" data-validation-error-msg="Please select atleast one ticket to continue" class="formField" id="totalticket" readonly /> <input
 									name="vpc_Amount" type="hidden" id="vpc_Amount" />
 								</td>
 							</tr>
@@ -999,9 +941,7 @@ if(isset($_GET['eid'])){
 								</td>
 								<td width="288" align="left" valign="top"
 									class="eventText full_width"><textarea name="address" rows="5"
-										cols="22">
-										<?php echo $_SESSION['Customer']['address'];?>
-									</textarea></td>
+										cols="22"><?php echo trim($_SESSION['Customer']['address']);?>				</textarea></td>
 							</tr>
 							<tr>
 								<td width="185" align="left" valign="middle"
@@ -1028,9 +968,9 @@ if(isset($_GET['eid'])){
                                         $readOnly = 'readonly="readonly"';
                                     }
                                     ?>
-                                    <input name="email" type="text"
-									class="formField" id="email"
-									value="<?php echo $emailValue;?>"
+                                    <input name="email" type="text" data-validation='email'
+									data-validation-error-msg='The email must be valid' class="formField" id="email"
+									value="<?php echo trim($emailValue);?>"
                                     <?php echo $readOnly;?>/></td>
 							</tr>
 <!--                                                    							<tr>
@@ -1087,15 +1027,15 @@ if(isset($_GET['eid'])){
                                                 class="formField" value="cc" onclick="getTotal()" /> Credit
                                                 Card</label>
                                             <!-- (Soon will be activated)<br />-->
-                                            <label> <input name="paytype" type="radio" class="formField"
-                                                value="spot" onclick="getTotal()" /> Payment on delivery </label>
+                                            
                                     <?php } else if($row_eventRs['payment_option'] == 'creditcard'){?>
                                             <label> <input name="paytype" type="radio" checked='checked'
                                                 class="formField" value="cc" onclick="getTotal()" /> Credit
                                                 Card</label>
                                     <?php } else if($row_eventRs['payment_option'] == 'cod'){?>
-                                            <label> <input name="paytype" type="radio" class="formField" checked='checked'
-                                                value="spot" onclick="getTotal()" /> Payment on delivery </label>
+                                            <label> <input name="paytype" type="radio" checked='checked'
+                                                class="formField" value="cc" onclick="getTotal()" /> Credit
+                                                Card</label>
                                     <?php } ?>
                                         </p></td>
                                 </tr>
@@ -1115,7 +1055,7 @@ if(isset($_GET['eid'])){
 								<td align="left" valign="middle" class="eventVenueWhite">&nbsp;</td>
 								<td align="left" valign="top" class="eventTextWhite"><label> <input
 										name="checkbox" type="checkbox" class="eventText"
-										value="termsagree" /> I declare having read and agreed on all
+										value="termsagree" data-validation="required" data-validation-error-msg="Please accept our Terms and Conditions to book tickets."/> I declare having read and agreed on all
 										the terms and conditions of Ticket Rush </label></td>
 							</tr>
 							<tr>
@@ -1145,11 +1085,6 @@ if(isset($_GET['eid'])){
 	<?php
 	mysql_free_result($eventRs);
 	?>
-	<?php 
-	if($row_eventRs['dtcm_approved']=='Yes' && $row_eventRs['dtcm_code']!='' )
-	getdtcmprices($row_eventRs['dtcm_code']); 
-	else
-	gettickets(null);?>
         <script type="text/javascript" src="jquery-ui.js" ></script>
         <link rel="stylesheet" href="jquery-ui.css"/>
         <script type="text/javascript">
@@ -1157,11 +1092,15 @@ if(isset($_GET['eid'])){
     $( "#dob" ).datepicker({ dateFormat: 'm-dd-yy',changeYear:true,yearRange: '1950:2013' });
   } );
         </script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script>
 <script type="text/javascript">
+
+$("#form1").validate({borderColorOnError : '#FFF',
+addValidClassOnAll : true,scrollToTopOnError : false});
     $(document).ready(function(){
         var partnerId = '<?php echo $_SESSION['PP_UserId']; ?>';
         if(partnerId != ''){
@@ -1185,7 +1124,7 @@ tottickets = 0;
 $.each([ <?php echo trim($string,",");?> ], function( index, value ) {
 var k=value;
 //console.log(k[0]);
-if(k[0]!=cat) return;
+if(k.substring(0,k.length-1)!=cat) return;
 //var k = document.form1.prices.value;
 //document.form1.price.value = price[k];
 //document.form1.cprice.value = cprice[k];
@@ -1225,15 +1164,35 @@ var selected_extra_service_price = selected_extra_service.attr("data-price");
         }
     }
 
-tottickets =Number(tottickets) +(Number(document.form1.regions.value))+ Number(selected_extra_service_price) + Number(serviceCharges) + Number(creditCharges);
+tottickets =Number(tottickets)+ Number(selected_extra_service_price) + Number(serviceCharges) + Number(creditCharges);
 console.log(tottickets);
-document.form1.charges.value = document.form1.regions.value;
+//document.form1.charges.value = document.form1.regions.value;
 document.form1.totalticket.value = Number(tottickets);
 document.form1.vpc_Amount.value = Number(tottickets)*100;
 document.getElementById('totalticket').focus();
 }
 var call_;
 $("#SubButL").click(function(){
+	alertify.parent(document.body);
+	var errors=[];
+conf = {
+  onElementValidate : function(valid, $el, $form, errorMess) {
+     if( !valid ) {
+      // gather up the failed validations
+      errors.push({el: $el, error: errorMess});
+     }
+  }
+};
+	if(!$("#form1").isValid(null,conf,true))
+	{
+		alertify.parent(document.body);
+		alertify.alert('There are some errors in the form. Please check the messages for errors.');
+		errors.forEach(function(er){
+			alertify.alert(er.error);
+			});
+		//console.log(errors);
+		return false;
+	}
 //window.open("","_blank","directories=no,fullscreen=no,location=no,menubar=no,resizable=yes,scrollbars=no,status=no,titlebar=no,top=0",false);
 console.clear();
 alertify.parent(document.body);

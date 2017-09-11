@@ -5,7 +5,7 @@ require_once('mail_plugin/MAIL5.php');
 
 //var_dump($m);
 
-$hostname_eventscon = "10.168.1.47";
+$hostname_eventscon ="localhost";// "10.168.1.47";
 $database_eventscon = "tktrushc_dbase";
 $username_eventscon = "tktrushc_user";
 $password_eventscon = "LP0q221p";

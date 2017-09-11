@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
 <div class="content-left">
 <div class="left_block">
 <?php 
-if($category_details){
+if(@$category_details){
 $cat_id=$category_details['id'];
 $query_string=" AND category='$cat_id'";
 }else {
@@ -227,7 +227,7 @@ while($row = mysql_fetch_array($result))
 <div>
 <?php
 
-if($data)
+if(@$data)
     { ?>
        <span style="color:#ff0000 !important;">Email Subscribed Successfully</span>
    <?php }

@@ -1,9 +1,5 @@
 <?php require_once('header.php'); 
 
-
-if( !isset($_SESSION["softix_token"]) ){
-require_once 'softix-token.php';
-}
 mysql_select_db($database_eventscon, $eventscon);
 
 if(!empty($_SESSION['Customer']))header("location:index.php");
@@ -54,39 +50,12 @@ if(!empty($_POST))
 
 	else{
             
-             $url = 'https://api.etixdubai.com/customers?sellerCode=AELAB1';
- //\ -H ‚Accept: application/vnd.softix.api-v1.0+json‛ \ -H ‚Accept-Language: en_US‛ \ -u ‚{client}:{secret}‛ \ -d ‚grant_type=client_credentials‛
- //$username = '193908c0ac0149f190c678827dab218c';
- //$password = '3182134e601a4d2496f5b6fed9b39aa3';
- $cus_obj = new stdClass();
-$demands_obj = new stdClass();
-$demands_obj->PriceTypeCode = 'Q';
-$demands_obj->Quantity = 1;
-$demands_obj->Admits = 1;
-$demands_obj->offerCode = '';
-$demands_obj->qualifierCode = '';
-$demands_obj->entitlement = '';
-$demands_obj->Customer = $cus_obj;
- $demands = array($demands_obj);
- $fee_obj = new stdClass();
- $fee_obj->Type = "5";
- $fee_obj->Code = 'W';
-$fields = array(
-	'Channel' => 'W',
-	'Seller' => 'AELAB1',
-	'Performancecode' => 'ETES3EL',
-	'Area' => 'SGA',	
-	'autoReduce' =>  false,
-		"holdcode"=>"",
-	'Demand' => $demands,
-	'Fees' => array($fee_obj)
 
-);
 //var_dump($fields);
 
 //url-ify the data for the POST
 
-$fields_string = json_encode($fields);
+$fields_string = "";//json_encode($fields);
 //var_dump($fields_string);
 //var_dump('{"Channel":"W","Seller":"AELAB1","Performancecode":"ETES3EL","Area":"SGA","autoReduce": false,"holdcode":"","Demand":[{"PriceTypeCode":"Q","Quantity":1,"Admits":1,"offerCode":"","qualifierCode":"","entitlement":"","Customer":{}}],"Fees":[{"Type":"5","Code":"W"}]}');
 $fname = $_POST['fname'];
@@ -103,20 +72,6 @@ $nationality = $_POST['nationality'];
 
 $fields_string = '{"salutation":"-","firstname":"'.$fname.'","lastname":"'.$lname.'","nationality":"'.$nationality.'","email":"'.$email.'","dateofbirth":"'.$dob.'","internationalcode":"-","areacode":"unknown","phonenumber":"'.$mobile.'","addressline1":"'.$address.'","addressline2":"-","addressline3":"-","city":"'.$city.'","state":"-","countrycode":"'.$country.'"}';
 //open connection
-$ch = curl_init();
-
-//set the url, number of POST vars, POST data
-curl_setopt($ch,CURLOPT_URL, $url);
-
- curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization: Bearer '.$_SESSION["softix_token"]));
-
-curl_setopt($ch,CURLOPT_POST, count($fields));
-curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-//curl_setopt ($ch, CURLOPT_CAINFO, "C:\wamp64/cacert.pem");
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//execute post
-$resultcd = curl_exec($ch);
 
 
 		$sql="INSERT INTO `customers`(cust_id,fname,lname,dob,age,gender,countryCode,mobile,email,password,city,country,address,date_added) VALUES(NULL,'$fname','$lname','$dob',$userAge,'$gender',$countryCode,'$mobile','$email','$password','$city','$country','$address','$date_added')";
@@ -126,13 +81,11 @@ $resultcd = curl_exec($ch);
 		if($result){
 
 		$_SESSION['success']='You have successfully registered.';
-                $c_id = mysql_insert_id();
-	$insertSQL = sprintf("UPDATE customers SET dtcm_id='$resultcd' WHERE cust_id='$c_id'");
-$Result11 = mysql_query($insertSQL, $eventscon) or die(mysql_error());
-
+        $c_id = mysql_insert_id();
+		header("location:index.php");
                 }else{
 
-		$_SESSION['error']='Error occured!.';
+		$_SESSION['error']='Error occured!'.mysql_error();
                 }
 		
 
@@ -166,11 +119,11 @@ $(document).ready(function(e) {
 
 
 </script>
-        <?php if($_SESSION['success']){?>
+        <?php if(@$_SESSION['success']){?>
 <h2 style="color:#006666;font-size: 21px;padding: 14px 0 12px;"><?php echo $_SESSION['success'];unset($_SESSION['success']);?></h2>
 <h3>  <a href="http://www.tktrush.com/signin.php">Login Here</a></h3>
         <?php }?>
-        <?php if($_SESSION['error']){?>
+        <?php if(@$_SESSION['error']){?>
         <h2 style="color:#FF0000;font-size: 21px;padding: 14px 0 12px;"><?php echo $_SESSION['error'];unset($_SESSION['error']);?></h2>
         <?php }?>
         <h1>Sign Up</h1>

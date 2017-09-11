@@ -3,7 +3,7 @@ include("config.php");
 include('dtcm_api/api_test.php');
 include('dtcm_api/dtcm_api.php');
 
-ini_set('display_errors',0);
+ini_set('display_errors',1);
 
 require_once('model_function.php');
 
@@ -24,7 +24,7 @@ $payload=array('headers'=>array(),'body'=>http_build_query($data));
 if(!isset($_SESSION['payment_order_ref']))
 {
 	session_regenerate_id();
-	header("Location: /index.php");
+	//header("Location: /index.php");
 	exit();
 }
 
@@ -53,6 +53,10 @@ function multidimensional_search($parents, $searched) {
 
 if($gatewayUrl['order']['transaction']['status']=='A'||$gatewayUrl['order']['transaction']['status']=='H')
 {
+
+updatePaymentStatus($_SESSION['orderid'],'paid');
+
+if($_SESSION['dtcm_event']=='Yes')	{
 $purchaseTicket=json_decode($dtcm_->purchase_basket_dtcm(array($_SESSION['dtcm_order_id'],$gatewayUrl['order']['amount']*100)),true);
 
 if($purchaseTicket=='NULL'||!$purchaseTicket) 
@@ -61,19 +65,23 @@ if($purchaseTicket=='NULL'||!$purchaseTicket)
 	header("Location: /index.php");
 	exit();
 }
+$orderDetails=getOrderDetails($purchaseTicket['OrderId'],'Yes');
+}
+elseif($_SESSION['dtcm_event']=='No'){
 	
-$orderDetails=json_decode($dtcm_->get_dtcm_order($purchaseTicket['OrderId']),true);
-$_SESSION['purchased_order_id']=$purchaseTicket['OrderId'];
-$perf_prices=json_decode($dtcm_->get_performance_prices($_SESSION['perf_code']),true);
+$orderDetails=getOrderDetails($_SESSION['orderid'],'No');//json_decode($dtcm_->get_dtcm_order($purchaseTicket['OrderId']),true);
+
+$_SESSION['purchased_order_id']=$_SESSION['orderid'];}
+$perf_prices=getEventPrices($_SESSION['eid']);//json_decode($dtcm_->get_performance_prices($_SESSION['perf_code']),true);
 
 //$_SESSION['purchased_order_id']='20170813,131';
 //$orderDetails=json_decode($dtcm_->get_dtcm_order('20170813,131'),true);
 //var_dump($purchaseTicket);
-//var_dump(json_encode($orderDetails));
+//var_dump($orderDetails);
 $price_types=$perf_prices['PriceTypes'];
 $ticket_prices=$perf_prices['TicketPrices']['Prices'];
 
-$query_eventRS = sprintf("SELECT * FROM events WHERE tid = %s", $_SESSION['event_id']);
+$query_eventRS = sprintf("SELECT * FROM events WHERE tid = %s", $_SESSION['eid']);
 //file_put_contents('inside_equery.txt',$query_eventRS);
 $eventRs = mysql_query($query_eventRS, $eventscon) or die(mysql_error());
 //file_put_contents('inside_equery_ex.txt',$eventRS);
@@ -88,7 +96,7 @@ $query_categoryRS = sprintf("SELECT * FROM category WHERE id = %s", $row_eventRs
 $categoryRs = mysql_query($query_categoryRS, $eventscon) or die(mysql_error());
 $row_categoryRs = mysql_fetch_assoc($categoryRs);
 
-$query_priceRS = sprintf("SELECT * FROM event_prices WHERE tid in (%s)", $_SESSION['event_id']);
+$query_priceRS = sprintf("SELECT * FROM event_prices WHERE tid in (%s)", $_SESSION['eid']);
 $priceRs = mysql_query($query_priceRS, $eventscon) or die(mysql_error());
 $totalRows_priceRs = mysql_num_rows($priceRs);
 
@@ -388,9 +396,9 @@ $m->Attach(file_get_contents($file_location), FUNC5::mime_type($file_location), 
 // connect to MTA server 'smtp.hostname.net' port '25' with authentication: 'username'/'password'
 
 }
-$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush') or die(print_r($m->Result));
+//$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush') or die(print_r($m->Result));
 //var_dump($m);
-$m->Send($c);
+//$m->Send($c);
 }
 
 //if($_GET['vpc_Message']=="Approved"){
@@ -405,7 +413,7 @@ $m->Send($c);
 //var_dump($_SESSION);
 unset($_SESSION['dtcm_id']);
 unset($_SESSION['dtcm_order_id']);
-unset($_SESSION['event_id']);
+unset($_SESSION['eid']);
 //unset($_SESSION['orderid']);
 $_SESSION['orderid']=$_SESSION['orderid']."paid";
 $_SESSION['tickets_print']=$ticket_array;
