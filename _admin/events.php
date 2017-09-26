@@ -654,7 +654,55 @@ $(function() {
 			
 			function editRecordForm($id) {
 				global $conn;
+				global $database;
 				
+				if($_POST)
+				{
+					global $database;
+					foreach($_POST['stand'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["stand"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['price'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["price"=>$value],["pid"=>$key]);
+					}
+					
+					
+					foreach($_POST['cprice'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["cprice"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['tickets'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["tickets"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['ctickets'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["ctickets"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['user_ticket'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["ticket_per_user"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['cuser_ticket'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["cticket_per_user"=>$value],["pid"=>$key]);
+					}
+					if($_POST['istand']){
+					foreach($_POST['istand'] as $key=>$value)
+					{
+						$data=$database->insert('event_prices',["tid"=>$id,"price"=>$_POST["iprice"][$key],"cprice"=>$_POST["icprice"][$key],"currency"=>"AED","ticket_per_user"=>$_POST["iuser_ticket"][$key],"cticket_per_user"=>$_POST["icuser_ticket"][$key],"stand"=>$_POST["istand"][$key],"tickets"=>$_POST["itickets"][$key],"ctickets"=>$_POST["ictickets"][$key]]);
+					}
+					}
+					
+					$database->delete("event_prices",["pid"=>$_POST['del_prices']]);
+				}
 				$qry = "SELECT * FROM events 
 						WHERE tid='".sqlSafe(trim(strip_tags($id)))."'	
 						LIMIT 1
@@ -954,7 +1002,123 @@ $(function() {
                                             </div>
                                         </div>
                                         </fieldset>
-                                        
+										
+                                        <fieldset class="default">
+										<legend>Event Prices</legend>
+										
+                                        <div class="control-group" id="event_prices">
+										<label class="label span2"style="margin:5px;width:120px;">STAND</label>
+										<label class="label span2"style="margin:5px;width:120px;">PRICE</label>
+										<label class="label span2"style="margin:5px;width:120px;">CHILD</label>
+										<label class="label span2"style="margin:5px;width:120px;">#TICKETS</label>
+										<label class="label span2"style="margin:5px;width:120px;">#CHILD</label>
+										<label class="label span2"style="margin:5px;width:120px;">#TICKETS/USER</label>
+										<label class="label span2"style="margin:5px;width:120px;">#CHILD/USER</label>
+										<?php 
+										global $database;
+										$data=$database->query('SELECT * FROM `event_prices` p,seats s where p.stand=s.id and p.tid=:tid',[':tid'=>$id])->fetchAll();
+										$stand=$database->query('select * from seats')->fetchAll();
+										$stand_str='';
+										foreach($stand as $tmp)
+										{
+											$stand_str=$stand_str."<option value='$tmp[id]'>$tmp[seat_type]</option>";
+										}
+										//var_dump($stand_str);
+										foreach($data as $price)
+										{ ?>
+										<fieldset class="default" style="clear:both; padding:0px;">
+					
+											<select style="margin:5px;width:120px;" id="stand[<?php echo $price['pid']?>]" name="stand[<?php echo $price['pid']?>]" class="span2">
+											<?php echo str_ireplace("'$price[id]'","'$price[id]' selected",$stand_str)?></select>
+											<input style="margin:5px;width:120px;" id="price[<?php echo $price['pid']?>]" name="price[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['price']?>"/>
+											<input style="margin:5px;width:120px;" id="cprice[<?php echo $price['pid']?>]" name="cprice[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cprice']?>"/>
+											<input style="margin:5px;width:120px;" id="tickets[<?php echo $price['pid']?>]" name="tickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['tickets']?>"/>
+											<input style="margin:5px;width:120px;" id="ctickets[<?php echo $price['pid']?>]" name="ctickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ctickets']?>"/>
+											<input style="margin:5px;width:120px;" id="user_ticket[<?php echo $price['pid']?>]" name="user_ticket[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ticket_per_user']?>"/>
+											<input style="margin:5px;width:120px;" id="cuser_ticket[<?php echo $price['pid']?>]" name="cuser_ticket[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cticket_per_user']?>"/>
+											<i class="icon-remove" onclick="removePrice(<?php echo $price['pid']?>,this)"></i>
+										</fieldset>	
+
+											<?php
+										}
+										?>
+										<input type="hidden" name="del_prices" id="del_prices"/>
+
+										</div>
+										<script>
+										function addPrice(){
+											
+											$('<fieldset class="default" style="clear:both; padding:0px;"><select style="margin:5px;width:120px;" id="istand[]" name="istand[]" class="span2"><?php echo str_ireplace("'","\"",$stand_str)?></select><input style="margin:5px;width:120px;" id="iprice[]" name="iprice[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="icprice[]" name="icprice[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="itickets[]" name="itickets[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="ictickets[]" name="ictickets[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="iuser_ticket[]" name="iuser_ticket[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="icuser_ticket[]" name="icuser_ticket[]" class="span2" type="text" value=""/><i class="icon-remove" onclick="remove(this)"></i></fieldset>').appendTo("#event_prices");
+										}
+										
+										function remove(obj)
+										{
+											//var tmp=$(obj).parents('fieldset');
+											$(obj).parent().remove();
+											//console.log(tmp);
+										}
+										
+										function removePrice(id,obj)
+										{
+											//ajaxcall
+											$("#del_prices").val(id+","+$("#del_prices").val());
+											console.log($("#del_prices").val());
+											remove(obj);
+										}
+										</script>
+										<input type="button" class="btn-block" value="Add New" onclick="addPrice();"/>
+										</fieldset>
+										
+										 <fieldset class="default">
+										<legend>Event Services</legend>
+										
+                                        <div class="control-group" id="event_prices">
+										<label class="label span4"style="margin:5px;width:120px;">Service</label>
+										<label class="label span4"style="margin:5px;width:120px;">Price</label>
+										<?php 
+										global $database;
+										$data=$database->query('SELECT * FROM `event_services` where event_id=:tid',[':tid'=>$id])->fetchAll();
+										$stand=$database->query('select * from seats')->fetchAll();
+
+										//var_dump($stand_str);
+										foreach($data as $price)
+										{ ?>
+										<fieldset class="default" style="clear:both; padding:0px;">
+											<input style="margin:5px;width:120px;" id="title[<?php echo $price['id']?>]" name="title[<?php echo $price['id']?>]" class="span4" type="text" value="<?php echo $price['title']?>"/>
+											<input style="margin:5px;width:120px;" id="servprice[<?php echo $price['id']?>]" name="servprice[<?php echo $price['pid']?>]" class="span4" type="text" value="<?php echo $price['price']?>"/>
+											<i class="icon-remove" onclick="removePrice(<?php echo $price['id']?>,this)"></i>
+										</fieldset>	
+
+											<?php
+										}
+										?>
+										<input type="hidden" name="del_services" id="del_services"/>
+
+										</div>
+										<script>
+										function addPrice(){
+											
+											$('<fieldset class="default" style="clear:both; padding:0px;"><input style="margin:5px;width:120px;" id="ititle[]" name="ititle[]" class="span4" type="text" value=""/><input style="margin:5px;width:120px;" id="iprice[]" name="iservprice[]" class="span2" type="text" value=""/>').appendTo("#event_prices");
+										}
+										
+										function remove(obj)
+										{
+											//var tmp=$(obj).parents('fieldset');
+											$(obj).parent().remove();
+											//console.log(tmp);
+										}
+										
+										function removePrice(id,obj)
+										{
+											//ajaxcall
+											$("#del_prices").val(id+","+$("#del_prices").val());
+											console.log($("#del_prices").val());
+											remove(obj);
+										}
+										</script>
+										<input type="button" class="btn-block" value="Add New" onclick="addPrice();"/>
+										</fieldset>
+										
                                         <fieldset class="default">
 										<legend>Event Media Files</legend>
                                         <div class="control-group">
@@ -3072,8 +3236,8 @@ $(function() {
 							//}
 						
 						}
-						
-						listRecords();
+						editRecordForm($id);
+						//listRecords();
 					}
 				}
 			break;		
