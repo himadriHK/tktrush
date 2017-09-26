@@ -954,7 +954,70 @@ $(function() {
                                             </div>
                                         </div>
                                         </fieldset>
-                                        
+										
+                                        <fieldset class="default">
+										<legend>Event Prices</legend>
+										
+                                        <div class="control-group" id="event_prices">
+										<label class="label span2"style="margin:5px;width:120px;">STAND</label>
+										<label class="label span2"style="margin:5px;width:120px;">PRICE</label>
+										<label class="label span2"style="margin:5px;width:120px;">CHILD</label>
+										<label class="label span2"style="margin:5px;width:120px;">#TICKETS</label>
+										<label class="label span2"style="margin:5px;width:120px;">#CHILD</label>
+										<label class="label span2"style="margin:5px;width:120px;">#TICKETS/USER</label>
+										<label class="label span2"style="margin:5px;width:120px;">#CHILD/USER</label>
+										<?php 
+										global $database;
+										$data=$database->query('SELECT * FROM `event_prices` p,seats s where p.stand=s.id and p.tid=:tid',[':tid'=>$id])->fetchAll();
+										$stand=$database->query('select * from seats')->fetchAll();
+										$stand_str='';
+										foreach($stand as $tmp)
+										{
+											$stand_str=$stand_str."<option value='$tmp[id]'>$tmp[seat_type]</option>";
+										}
+										//var_dump($stand_str);
+										foreach($data as $price)
+										{ ?>
+										<fieldset class="default" style="clear:both; padding:0px;">
+					
+											<select style="margin:5px;width:120px;" id="stand[<?php echo $price['pid']?>]" name="stand[<?php echo $price['pid']?>]" class="span2">
+											<?php echo str_ireplace("'$price[id]'","'$price[id]' selected",$stand_str)?></select>
+											<input style="margin:5px;width:120px;" id="price[<?php echo $price['pid']?>]" name="price[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['price']?>"/>
+											<input style="margin:5px;width:120px;" id="cprice[<?php echo $price['pid']?>]" name="cprice[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cprice']?>"/>
+											<input style="margin:5px;width:120px;" id="tickets[<?php echo $price['pid']?>]" name="tickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['tickets']?>"/>
+											<input style="margin:5px;width:120px;" id="ctickets[<?php echo $price['pid']?>]" name="ctickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ctickets']?>"/>
+											<input style="margin:5px;width:120px;" id="user[<?php echo $price['pid']?>]" name="usr[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ticket_per_user']?>"/>
+											<input style="margin:5px;width:120px;" id="cuser[<?php echo $price['pid']?>]" name="cusr[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cticket_per_user']?>"/>
+											<i class="icon-remove" onclick="removePrice(<?php echo $price['pid']?>,this)"></i>
+										</fieldset>	
+
+											<?php
+										}
+										?>
+										
+										</div>
+										<script>
+										function addPrice(){
+											
+											$('<fieldset class="default" style="clear:both; padding:0px;"><select style="margin:5px;width:120px;" id="stand[new]" name="stand[new]" class="span2"><?php echo str_ireplace("'","\"",$stand_str)?></select><input style="margin:5px;width:120px;" id="price[new]" name="price[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="cprice[new]" name="cprice[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="tickets[new]" name="tickets[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="ctickets[new]" name="ctickets[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="user[new]" name="usr[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="cuser[new]" name="cusr[new]" class="span2" type="text" value=""/><i class="icon-remove" onclick="remove(this)"></i></fieldset>').appendTo("#event_prices");
+										}
+										
+										function remove(obj)
+										{
+											//var tmp=$(obj).parents('fieldset');
+											$(obj).parent().remove();
+											//console.log(tmp);
+										}
+										
+										function removePrice(id,obj)
+										{
+											//ajaxcall
+											remove(obj);
+										}
+										</script>
+										<input type="button" class="btn-block" value="Add New" onclick="addPrice();"/>
+										</fieldset>
+										
                                         <fieldset class="default">
 										<legend>Event Media Files</legend>
                                         <div class="control-group">
