@@ -241,6 +241,23 @@ $(function() {
                                                 </select>
                                             </div>
                                         </div>
+										<div class="control-group">
+                                            <label class="control-label">Partner</label>
+                                            <div class="controls">
+                                                <select class="span4" id="partner" name="partner">
+                                                    <option value=""> - Select - </option>
+                                                    <?php
+                                                    $qry = "SELECT * FROM partners WHERE 1 ORDER BY name ASC";
+													$res = mysqli_query($conn, $qry);
+													while($row = mysqli_fetch_array($res)) {
+													?>
+                                                    	<option value="<?php echo $row['spid']?>" <?php echo ($row['spid'] == $partner)?"selected":""?>><?php echo $row['name']?></option>
+                                                    <?php
+													}
+													?>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="control-group">
                                             <label class="control-label">Country</label>
                                             <div class="controls">
@@ -662,8 +679,40 @@ $(function() {
 					foreach($_POST['stand'] as $key=>$value)
 					{
 						$data=$database->update('event_prices',["stand"=>$value],["pid"=>$key]);
+						$data=$database->update('event_prices',["price"=>$_POST['price'][$key]],["pid"=>$key]);
+						$data=$database->update('event_prices',["cprice"=>$_POST['cprice'][$key]],["pid"=>$key]);
+						$data=$database->update('event_prices',["tickets"=>$_POST['tickets'][$key]],["pid"=>$key]);
+						$data=$database->update('event_prices',["ctickets"=>$_POST['ctickets'][$key]],["pid"=>$key]);
+						$data=$database->update('event_prices',["ticket_per_user"=>$_POST['user_ticket'][$key]],["pid"=>$key]);
+						$data=$database->update('event_prices',["cticket_per_user"=>$_POST['cuser_ticket'][$key]],["pid"=>$key]);
+					}
+					if($_POST['istand']){
+					foreach($_POST['istand'] as $key=>$value)
+					{
+						$data=$database->insert('event_prices',["tid"=>$id,"price"=>$_POST["iprice"][$key],"cprice"=>$_POST["icprice"][$key],"currency"=>"AED","ticket_per_user"=>$_POST["iuser_ticket"][$key],"cticket_per_user"=>$_POST["icuser_ticket"][$key],"stand"=>$_POST["istand"][$key],"tickets"=>$_POST["itickets"][$key],"ctickets"=>$_POST["ictickets"][$key]]);
+					}
 					}
 					
+					$database->delete("event_prices",["pid"=>$_POST['del_prices']]);
+					
+					if($_POST['title']){
+					foreach($_POST['title'] as $key=>$value)
+					{
+						$data=$database->update('event_services',["title"=>$value],["id"=>$key]);
+						$data=$database->update('event_services',["price"=>$_POST['servprice'][$key]],["id"=>$key]);
+					}
+					}
+					if($_POST['ititle']){
+					foreach($_POST['ititle'] as $key=>$value)
+					{
+						$data=$database->insert('event_services',["event_id"=>$id,"title"=>$_POST["ititle"][$key],"price"=>$_POST["iservprice"][$key]]);
+					}
+					}
+					
+					$database->delete("event_services",["id"=>$_POST['del_services']]);
+					
+					
+					/*
 					foreach($_POST['price'] as $key=>$value)
 					{
 						$data=$database->update('event_prices',["price"=>$value],["pid"=>$key]);
@@ -693,15 +742,8 @@ $(function() {
 					foreach($_POST['cuser_ticket'] as $key=>$value)
 					{
 						$data=$database->update('event_prices',["cticket_per_user"=>$value],["pid"=>$key]);
-					}
-					if($_POST['istand']){
-					foreach($_POST['istand'] as $key=>$value)
-					{
-						$data=$database->insert('event_prices',["tid"=>$id,"price"=>$_POST["iprice"][$key],"cprice"=>$_POST["icprice"][$key],"currency"=>"AED","ticket_per_user"=>$_POST["iuser_ticket"][$key],"cticket_per_user"=>$_POST["icuser_ticket"][$key],"stand"=>$_POST["istand"][$key],"tickets"=>$_POST["itickets"][$key],"ctickets"=>$_POST["ictickets"][$key]]);
-					}
-					}
+					}*/
 					
-					$database->delete("event_prices",["pid"=>$_POST['del_prices']]);
 				}
 				$qry = "SELECT * FROM events 
 						WHERE tid='".sqlSafe(trim(strip_tags($id)))."'	
@@ -761,6 +803,8 @@ $(function() {
 				$dtcm_code = $event_row['dtcm_code'];
 				$fb_link = $event_row['fb_link'];
 				$payment_option = $event_row['payment_option'];
+				$partner=$event_row['partner'];
+				$partner_commission=$event_row['partner_commission'];
 			?>
             	<div class="row-fluid">
                     <div class="span12">
@@ -791,6 +835,29 @@ $(function() {
 													}
 													?>
                                                 </select>
+                                            </div>
+                                        </div>
+										<div class="control-group">
+                                            <label class="control-label">Partner</label>
+                                            <div class="controls">
+                                                <select class="span4" id="partner" name="partner">
+                                                    <option value=""> - Select - </option>
+                                                    <?php
+                                                    $qry = "SELECT * FROM partners WHERE 1 ORDER BY name ASC";
+													$res = mysqli_query($conn, $qry);
+													while($row = mysqli_fetch_array($res)) {
+													?>
+                                                    	<option value="<?php echo $row['spid']?>" <?php echo ($row['spid'] == $partner)?"selected":""?>><?php echo $row['name']?></option>
+                                                    <?php
+													}
+													?>
+                                                </select>
+                                            </div>
+                                        </div>
+										<div class="control-group">
+                                            <label class="control-label">Partner Commission</label>
+                                            <div class="controls">
+                                                <input id="partner_commission" name="partner_commission" class="span4" type="text" value="<?php echo $partner_commission?>"/>
                                             </div>
                                         </div>
                                         <div class="control-group">
@@ -1072,9 +1139,9 @@ $(function() {
 										 <fieldset class="default">
 										<legend>Event Services</legend>
 										
-                                        <div class="control-group" id="event_prices">
-										<label class="label span4"style="margin:5px;width:120px;">Service</label>
-										<label class="label span4"style="margin:5px;width:120px;">Price</label>
+                                        <div class="control-group" id="event_services">
+										<label class="label span4"style="margin:5px;">Service</label>
+										<label class="label span4"style="margin:5px;">Price</label>
 										<?php 
 										global $database;
 										$data=$database->query('SELECT * FROM `event_services` where event_id=:tid',[':tid'=>$id])->fetchAll();
@@ -1084,9 +1151,9 @@ $(function() {
 										foreach($data as $price)
 										{ ?>
 										<fieldset class="default" style="clear:both; padding:0px;">
-											<input style="margin:5px;width:120px;" id="title[<?php echo $price['id']?>]" name="title[<?php echo $price['id']?>]" class="span4" type="text" value="<?php echo $price['title']?>"/>
-											<input style="margin:5px;width:120px;" id="servprice[<?php echo $price['id']?>]" name="servprice[<?php echo $price['pid']?>]" class="span4" type="text" value="<?php echo $price['price']?>"/>
-											<i class="icon-remove" onclick="removePrice(<?php echo $price['id']?>,this)"></i>
+											<input style="margin:5px;" id="title[<?php echo $price['id']?>]" name="title[<?php echo $price['id']?>]" class="span4" type="text" value="<?php echo $price['title']?>"/>
+											<input style="margin:5px;" id="servprice[<?php echo $price['id']?>]" name="servprice[<?php echo $price['id']?>]" class="span4" type="text" value="<?php echo $price['price']?>"/>
+											<i class="icon-remove" onclick="removeService(<?php echo $price['id']?>,this)"></i>
 										</fieldset>	
 
 											<?php
@@ -1096,9 +1163,9 @@ $(function() {
 
 										</div>
 										<script>
-										function addPrice(){
+										function addService(){
 											
-											$('<fieldset class="default" style="clear:both; padding:0px;"><input style="margin:5px;width:120px;" id="ititle[]" name="ititle[]" class="span4" type="text" value=""/><input style="margin:5px;width:120px;" id="iprice[]" name="iservprice[]" class="span2" type="text" value=""/>').appendTo("#event_prices");
+											$('<fieldset class="default" style="clear:both; padding:0px;"><input style="margin:5px;" id="ititle[]" name="ititle[]" class="span4" type="text" value=""/><input style="margin:5px;" id="iservprice[]" name="iservprice[]" class="span2" type="text" value=""/><i class="icon-remove" onclick="remove(this)"></i></fieldset>').appendTo("#event_services");
 										}
 										
 										function remove(obj)
@@ -1108,15 +1175,15 @@ $(function() {
 											//console.log(tmp);
 										}
 										
-										function removePrice(id,obj)
+										function removeService(id,obj)
 										{
 											//ajaxcall
-											$("#del_prices").val(id+","+$("#del_prices").val());
-											console.log($("#del_prices").val());
+											$("#del_services").val(id+","+$("#del_services").val());
+											console.log($("#del_services").val());
 											remove(obj);
 										}
 										</script>
-										<input type="button" class="btn-block" value="Add New" onclick="addPrice();"/>
+										<input type="button" class="btn-block" value="Add New" onclick="addService();"/>
 										</fieldset>
 										
                                         <fieldset class="default">
@@ -2470,12 +2537,14 @@ $(function() {
 							"dtcm_approved"=>sqlSafe(strip_tags($dtcm_approved)),
 							"dtcm_code"=>sqlSafe(strip_tags($dtcm_code)),
 							"fb_link"=>sqlSafe(strip_tags($fb_link)),
-							"payment_option"=>sqlSafe(strip_tags($payment_option))
+							"payment_option"=>sqlSafe(strip_tags($payment_option)),
+							"partner"=>sqlSafe(strip_tags($partner)),
+							"partner_commission"=>sqlSafe(strip_tags($partner_commission))
 							);
 						$eventId = addItem("events", $data);
 						
 						if(($dtcm_approved == "Yes") && !empty($dtcm_code)) {
-							
+							/*
 							//get access token
 							$api_access_token = getAPIAccessToken();
 							
@@ -2589,10 +2658,11 @@ $(function() {
 								
 								
 							}
-						
+						*/
 						}
 						
 						listRecords();
+						//addRecordForm();
 					}
 
 				}
@@ -2989,7 +3059,9 @@ $(function() {
 							"dtcm_approved"=>sqlSafe(strip_tags($dtcm_approved)),
 							"dtcm_code"=>sqlSafe(strip_tags($dtcm_code)),
 							"fb_link"=>sqlSafe(strip_tags($fb_link)),
-							"payment_option"=>sqlSafe(strip_tags($payment_option))
+							"payment_option"=>sqlSafe(strip_tags($payment_option)),
+							"partner"=>sqlSafe(strip_tags($partner)),
+							"partner_commission"=>sqlSafe(strip_tags($partner))
 							);
 						
 						editItem("events", $data, $id, "tid");
