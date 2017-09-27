@@ -2184,7 +2184,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Event "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -2391,7 +2391,7 @@ $(function() {
 						foreach($error_msg_arr as $error_msg) {
 						?>
                             <div class="alert">
-                                <button data-dismiss="alert" class="close" type="button">×</button>
+                                <button data-dismiss="alert" class="close" type="button">Ã—</button>
                                 <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                             </div>
 						<?php
@@ -2621,7 +2621,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
                 	<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Event!</strong> Event "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -2910,7 +2910,7 @@ $(function() {
 						foreach($error_msg_arr as $error_msg) {
 						?>
                             <div class="alert">
-                                <button data-dismiss="alert" class="close" type="button">×</button>
+                                <button data-dismiss="alert" class="close" type="button">Ã—</button>
                                 <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                             </div>
 						<?php
@@ -3261,7 +3261,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Category "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3294,7 +3294,7 @@ $(function() {
 					if(!empty($error_msg)) {
 						?>
                     	<div class="alert">
-                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <button data-dismiss="alert" class="close" type="button">Ã—</button>
                             <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                         </div>
 						<?php
@@ -3338,7 +3338,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Seat Type "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3394,7 +3394,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Ad for Category "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3426,7 +3426,7 @@ $(function() {
 					if(!empty($error_msg)) {
 						?>
                     	<div class="alert">
-                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <button data-dismiss="alert" class="close" type="button">Ã—</button>
                             <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                         </div>
 						<?php
