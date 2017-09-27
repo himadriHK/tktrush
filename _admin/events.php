@@ -7,7 +7,7 @@ include "$include_dir/pagination.php";
 include "security.php";
 extract($_REQUEST);
 extract($_POST);
-//OK
+//test commit
 $pageName = "Events";
 
 if(isset($_POST['action']) && ($_POST['action'] == "getCountryCities")) {
