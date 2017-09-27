@@ -654,7 +654,55 @@ $(function() {
 			
 			function editRecordForm($id) {
 				global $conn;
+				global $database;
 				
+				if($_POST)
+				{
+					global $database;
+					foreach($_POST['stand'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["stand"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['price'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["price"=>$value],["pid"=>$key]);
+					}
+					
+					
+					foreach($_POST['cprice'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["cprice"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['tickets'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["tickets"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['ctickets'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["ctickets"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['user_ticket'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["ticket_per_user"=>$value],["pid"=>$key]);
+					}
+					
+					foreach($_POST['cuser_ticket'] as $key=>$value)
+					{
+						$data=$database->update('event_prices',["cticket_per_user"=>$value],["pid"=>$key]);
+					}
+					if($_POST['istand']){
+					foreach($_POST['istand'] as $key=>$value)
+					{
+						$data=$database->insert('event_prices',["tid"=>$id,"price"=>$_POST["iprice"][$key],"cprice"=>$_POST["icprice"][$key],"currency"=>"AED","ticket_per_user"=>$_POST["iuser_ticket"][$key],"cticket_per_user"=>$_POST["icuser_ticket"][$key],"stand"=>$_POST["istand"][$key],"tickets"=>$_POST["itickets"][$key],"ctickets"=>$_POST["ictickets"][$key]]);
+					}
+					}
+					
+					$database->delete("event_prices",["pid"=>$_POST['del_prices']]);
+				}
 				$qry = "SELECT * FROM events 
 						WHERE tid='".sqlSafe(trim(strip_tags($id)))."'	
 						LIMIT 1
@@ -986,20 +1034,21 @@ $(function() {
 											<input style="margin:5px;width:120px;" id="cprice[<?php echo $price['pid']?>]" name="cprice[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cprice']?>"/>
 											<input style="margin:5px;width:120px;" id="tickets[<?php echo $price['pid']?>]" name="tickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['tickets']?>"/>
 											<input style="margin:5px;width:120px;" id="ctickets[<?php echo $price['pid']?>]" name="ctickets[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ctickets']?>"/>
-											<input style="margin:5px;width:120px;" id="user[<?php echo $price['pid']?>]" name="usr[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ticket_per_user']?>"/>
-											<input style="margin:5px;width:120px;" id="cuser[<?php echo $price['pid']?>]" name="cusr[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cticket_per_user']?>"/>
+											<input style="margin:5px;width:120px;" id="user_ticket[<?php echo $price['pid']?>]" name="user_ticket[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['ticket_per_user']?>"/>
+											<input style="margin:5px;width:120px;" id="cuser_ticket[<?php echo $price['pid']?>]" name="cuser_ticket[<?php echo $price['pid']?>]" class="span2" type="text" value="<?php echo $price['cticket_per_user']?>"/>
 											<i class="icon-remove" onclick="removePrice(<?php echo $price['pid']?>,this)"></i>
 										</fieldset>	
 
 											<?php
 										}
 										?>
-										
+										<input type="hidden" name="del_prices" id="del_prices"/>
+
 										</div>
 										<script>
 										function addPrice(){
 											
-											$('<fieldset class="default" style="clear:both; padding:0px;"><select style="margin:5px;width:120px;" id="stand[new]" name="stand[new]" class="span2"><?php echo str_ireplace("'","\"",$stand_str)?></select><input style="margin:5px;width:120px;" id="price[new]" name="price[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="cprice[new]" name="cprice[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="tickets[new]" name="tickets[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="ctickets[new]" name="ctickets[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="user[new]" name="usr[new]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="cuser[new]" name="cusr[new]" class="span2" type="text" value=""/><i class="icon-remove" onclick="remove(this)"></i></fieldset>').appendTo("#event_prices");
+											$('<fieldset class="default" style="clear:both; padding:0px;"><select style="margin:5px;width:120px;" id="istand[]" name="istand[]" class="span2"><?php echo str_ireplace("'","\"",$stand_str)?></select><input style="margin:5px;width:120px;" id="iprice[]" name="iprice[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="icprice[]" name="icprice[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="itickets[]" name="itickets[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="ictickets[]" name="ictickets[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="iuser_ticket[]" name="iuser_ticket[]" class="span2" type="text" value=""/><input style="margin:5px;width:120px;" id="icuser_ticket[]" name="icuser_ticket[]" class="span2" type="text" value=""/><i class="icon-remove" onclick="remove(this)"></i></fieldset>').appendTo("#event_prices");
 										}
 										
 										function remove(obj)
@@ -1012,6 +1061,58 @@ $(function() {
 										function removePrice(id,obj)
 										{
 											//ajaxcall
+											$("#del_prices").val(id+","+$("#del_prices").val());
+											console.log($("#del_prices").val());
+											remove(obj);
+										}
+										</script>
+										<input type="button" class="btn-block" value="Add New" onclick="addPrice();"/>
+										</fieldset>
+										
+										 <fieldset class="default">
+										<legend>Event Services</legend>
+										
+                                        <div class="control-group" id="event_prices">
+										<label class="label span4"style="margin:5px;width:120px;">Service</label>
+										<label class="label span4"style="margin:5px;width:120px;">Price</label>
+										<?php 
+										global $database;
+										$data=$database->query('SELECT * FROM `event_services` where event_id=:tid',[':tid'=>$id])->fetchAll();
+										$stand=$database->query('select * from seats')->fetchAll();
+
+										//var_dump($stand_str);
+										foreach($data as $price)
+										{ ?>
+										<fieldset class="default" style="clear:both; padding:0px;">
+											<input style="margin:5px;width:120px;" id="title[<?php echo $price['id']?>]" name="title[<?php echo $price['id']?>]" class="span4" type="text" value="<?php echo $price['title']?>"/>
+											<input style="margin:5px;width:120px;" id="servprice[<?php echo $price['id']?>]" name="servprice[<?php echo $price['pid']?>]" class="span4" type="text" value="<?php echo $price['price']?>"/>
+											<i class="icon-remove" onclick="removePrice(<?php echo $price['id']?>,this)"></i>
+										</fieldset>	
+
+											<?php
+										}
+										?>
+										<input type="hidden" name="del_services" id="del_services"/>
+
+										</div>
+										<script>
+										function addPrice(){
+											
+											$('<fieldset class="default" style="clear:both; padding:0px;"><input style="margin:5px;width:120px;" id="ititle[]" name="ititle[]" class="span4" type="text" value=""/><input style="margin:5px;width:120px;" id="iprice[]" name="iservprice[]" class="span2" type="text" value=""/>').appendTo("#event_prices");
+										}
+										
+										function remove(obj)
+										{
+											//var tmp=$(obj).parents('fieldset');
+											$(obj).parent().remove();
+											//console.log(tmp);
+										}
+										
+										function removePrice(id,obj)
+										{
+											//ajaxcall
+											$("#del_prices").val(id+","+$("#del_prices").val());
+											console.log($("#del_prices").val());
 											remove(obj);
 										}
 										</script>
@@ -2083,7 +2184,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Event "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -2290,7 +2391,7 @@ $(function() {
 						foreach($error_msg_arr as $error_msg) {
 						?>
                             <div class="alert">
-                                <button data-dismiss="alert" class="close" type="button">×</button>
+                                <button data-dismiss="alert" class="close" type="button">Ã—</button>
                                 <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                             </div>
 						<?php
@@ -2520,7 +2621,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
                 	<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Event!</strong> Event "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -2809,7 +2910,7 @@ $(function() {
 						foreach($error_msg_arr as $error_msg) {
 						?>
                             <div class="alert">
-                                <button data-dismiss="alert" class="close" type="button">×</button>
+                                <button data-dismiss="alert" class="close" type="button">Ã—</button>
                                 <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                             </div>
 						<?php
@@ -3135,8 +3236,8 @@ $(function() {
 							//}
 						
 						}
-						
-						listRecords();
+						editRecordForm($id);
+						//listRecords();
 					}
 				}
 			break;		
@@ -3160,7 +3261,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Category "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3193,7 +3294,7 @@ $(function() {
 					if(!empty($error_msg)) {
 						?>
                     	<div class="alert">
-                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <button data-dismiss="alert" class="close" type="button">Ã—</button>
                             <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                         </div>
 						<?php
@@ -3237,7 +3338,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Seat Type "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3293,7 +3394,7 @@ $(function() {
 				if(mysqli_num_rows($res) > 0) {
 				?>
 					<div class="alert">
-						<button data-dismiss="alert" class="close" type="button">×</button>
+						<button data-dismiss="alert" class="close" type="button">Ã—</button>
 						<i class="icon-exclamation-sign"></i><strong>Warning!</strong> Ad for Category "<?php echo $name?>" already exists.
 					</div>
 				<?php
@@ -3325,7 +3426,7 @@ $(function() {
 					if(!empty($error_msg)) {
 						?>
                     	<div class="alert">
-                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <button data-dismiss="alert" class="close" type="button">Ã—</button>
                             <i class="icon-exclamation-sign"></i><strong>Warning!</strong> <?=$error_msg?>
                         </div>
 						<?php
