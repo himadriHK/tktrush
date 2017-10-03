@@ -85,7 +85,8 @@ $(function() {
 			sale_date: "required",
 			time_start: "required",
 			time_end: "required",
-			picture: "required"
+			picture: "required",
+			partner_commission:{required:true,number:true,range:[0,50]}
 			
 		},
 		messages: {
@@ -104,7 +105,8 @@ $(function() {
 			sale_date: "Please select sale starting date",
 			time_start: "Please select start time",
 			time_end: "Please select end time",
-			picture: "Please select event main image"
+			picture: "Please select event main image",
+			partner_commission: "Enter commission in percent"
 			
 		}
 	});
@@ -125,7 +127,8 @@ $(function() {
 			doors_open: "required",
 			sale_date: "required",
 			time_start: "required",
-			time_end: "required"
+			time_end: "required",
+			partner_commission:{required:true,number:true,range:[0,50]}
 			
 		},
 		messages: {
@@ -143,9 +146,16 @@ $(function() {
 			doors_open: "Please select door open hours",
 			sale_date: "Please select sale starting date",
 			time_start: "Please select start time",
-			time_end: "Please select end time"
+			time_end: "Please select end time",
+			partner_commission: "Enter commission in percent"
 			
 		}
+	});
+
+	jQuery("[name^='iprice']").addClass('price_validator');
+	jQuery("[name^='price']").addClass('price_validator');
+	jQuery.validator.addClassRules("price_validator", {
+		required: [true,"Enter Price"]
 	});
 	
 	$("#categoryForm").validate({
@@ -256,6 +266,12 @@ $(function() {
 													}
 													?>
                                                 </select>
+                                            </div>
+                                        </div>
+										<div class="control-group">
+                                            <label class="control-label">Partner Commission</label>
+                                            <div class="controls">
+                                                <input id="partner_commission" data-validation="number" data-validation-allowing="float" name="partner_commission" data-validation-error-msg="Please enter a valid number" class="span4" type="text" value="<?php echo $partner_commission?>"/>
                                             </div>
                                         </div>
                                         <div class="control-group">
@@ -676,6 +692,7 @@ $(function() {
 				if($_POST)
 				{
 					global $database;
+					if($_POST['stand']){
 					foreach($_POST['stand'] as $key=>$value)
 					{
 						$data=$database->update('event_prices',["stand"=>$value],["pid"=>$key]);
@@ -685,6 +702,7 @@ $(function() {
 						$data=$database->update('event_prices',["ctickets"=>$_POST['ctickets'][$key]],["pid"=>$key]);
 						$data=$database->update('event_prices',["ticket_per_user"=>$_POST['user_ticket'][$key]],["pid"=>$key]);
 						$data=$database->update('event_prices',["cticket_per_user"=>$_POST['cuser_ticket'][$key]],["pid"=>$key]);
+					}
 					}
 					if($_POST['istand']){
 					foreach($_POST['istand'] as $key=>$value)
@@ -857,7 +875,7 @@ $(function() {
 										<div class="control-group">
                                             <label class="control-label">Partner Commission</label>
                                             <div class="controls">
-                                                <input id="partner_commission" name="partner_commission" class="span4" type="text" value="<?php echo $partner_commission?>"/>
+                                                <input id="partner_commission" data-validation="number" data-validation-allowing="float" name="partner_commission" data-validation-error-msg="Please enter a valid number" class="span4" type="text" value="<?php echo $partner_commission?>"/>
                                             </div>
                                         </div>
                                         <div class="control-group">
@@ -3547,6 +3565,7 @@ $(function() {
 		$("#dtcmCodeContainer").toggle(500);
 	});
 	</script>
+	
 	<?php include_once("footer.php")?>
 </div>
 </body>
