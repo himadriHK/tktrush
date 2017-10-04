@@ -15,14 +15,14 @@ require_once('header.php');
 <?php require_once('menu.php'); ?>
 <div class="shows-box" style="padding:20px 10px; width:inherit;">
 
-<h1>Partner <?php if (!$_SESSION['PP_UserId']){echo 'Login';}else{echo "Details";} ?></h1>
+<h1>Partner <?php if (!@$_SESSION['PP_UserId']){echo 'Login';}else{echo "Details";} ?></h1>
 <div class="shows-box-frames">
  <table width="100%" border="0" cellspacing="0" cellpadding="0" >
 
                   <tr>
                     <td align="left"><?php
 
-		if (!$_SESSION['PP_UserId']){
+		if (!@$_SESSION['PP_UserId']){
 
 		 include("partner_login.php");
 

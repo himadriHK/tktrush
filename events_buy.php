@@ -1,5 +1,5 @@
-<?php include('dtcm_api/api_test.php');
-include('dtcm_api/dtcm_api.php'); ?>
+<?php include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/api_test.php');
+include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/dtcm_api.php'); ?>
 <?php include("functions.php"); ?>
 <?php include("config.php"); ?>
 <?php
@@ -604,7 +604,8 @@ if(isset($_GET['eid'])){
 										</h4>
 										<?php 
 											foreach ($ticket_prices['PriceTypes'] as $priceType){
-												//var_dump($priceType);
+												//var_dump($priceType['PriceTypeCode']);
+												//var_dump($priceType['PriceTypeId']);
 												if($priceType['PriceTypeCode'] == 'A' || $priceType['PriceTypeCode'] == 'Q'|| $priceType['PriceTypeCode'] == 'J'||$priceType['PriceTypeCode'] == 'C'){
 													$price_data = get_priceByCatType($stand['PriceCategoryId'],$priceType['PriceTypeId'],$ticket_prices);
 													//var_dump($price_data);
@@ -624,7 +625,7 @@ if(isset($_GET['eid'])){
 										<div class="adultbg">
 										<?php 
 											foreach ($ticket_prices['PriceTypes'] as $priceType){
-												if($priceType['PriceTypeCode'] == 'A' || $priceType['PriceTypeCode'] == 'Q'|| $priceType['PriceTypeCode'] == 'J'){
+												if($priceType['PriceTypeCode'] == 'A' || $priceType['PriceTypeCode'] == 'Q'|| $priceType['PriceTypeCode'] == 'J'||$priceType['PriceTypeCode'] == 'C'){
 													$price_data = get_priceByCatType($stand['PriceCategoryId'],$priceType['PriceTypeId'],$ticket_prices);
 													if($price_data !='' && $price_data['PriceNet']>0 ){
 										?>
@@ -1236,6 +1237,13 @@ function poll_()
 	 else if(data=="FAIL")
 	 {
 		 poll_();
+	 }
+	 else if(data=="CAN")
+	 {
+		  $("#loader_img").css("display","none");
+		 alertify.parent(document.body);
+		 alertify.alert('Payment is cancelled by user');
+		 //location.href="/index.php";
 	 }
 	  });
 }

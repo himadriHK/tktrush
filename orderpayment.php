@@ -1,6 +1,6 @@
 <?php
-include('dtcm_api/api_test.php');
-include('dtcm_api/dtcm_api.php');
+include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/api_test.php');
+include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/dtcm_api.php');
 include("orderentry.php");
 //test test
 
@@ -10,40 +10,40 @@ if(!isset($_SESSION['orderid']))
 	exit();
 }
 
-if($_POST["paytype"]=="spot"){
-mysql_select_db($database_eventscon, $eventscon);
-$query_update = sprintf("UPDATE ticket_orders SET ccapproved = 'Yes' WHERE oid = %s", $_SESSION['orderid']);
-$update = mysql_query($query_update, $eventscon) or die(mysql_error());
-$orderid=$_SESSION['orderid'];
-$custid=$_SESSION['custid'];
-//include("sendmail.php");
-	header("Location:events_confirm.php");
-	exit();
-}
-// functionality to update payment values for partner login
-if($_POST["paytype"]=="pt_spot" ){
-    $customer_data = array();
-    if(isset($_POST['email'])){
-        $customer_data['fname'] = $_POST['fname'];
-        $customer_data['lname'] = $_POST['lname'];
-        $customer_data['address'] = $_POST['address'];
-        $customer_data['mobile'] = $_POST['address'];
-        $customer_data['email'] = $_POST['email'];
-        $customer_data['city'] = $_POST['city'];
-        $customer_data['country'] = $_POST['country'];
-    }
-    mysql_select_db($database_eventscon, $eventscon);
-    $query_update = sprintf("UPDATE ticket_orders SET partner_id = ".$_SESSION['PP_UserId'].",ccapproved = 'Yes', payment_status = 'paid',customer_info = '".serialize($customer_data)."' WHERE oid = %s", $_SESSION['orderid']);
-    $update = mysql_query($query_update, $eventscon) or die(mysql_error());
-    $orderid=$_SESSION['orderid'];
-    $custid=$_SESSION['custid'];
-    //if(isset($_SESSION['PP_UserId'])){
-    //    header("Location:download_tickets.php");
-    //} else {
-    //    header("Location:events_confirm.php");
-    //}
-    exit();
-}
+//if($_POST["paytype"]=="spot"){
+//mysql_select_db($database_eventscon, $eventscon);
+//$query_update = sprintf("UPDATE ticket_orders SET ccapproved = 'Yes' WHERE oid = %s", $_SESSION['orderid']);
+//$update = mysql_query($query_update, $eventscon) or die(mysql_error());
+//$orderid=$_SESSION['orderid'];
+//$custid=$_SESSION['custid'];
+////include("sendmail.php");
+//	header("Location:events_confirm.php");
+//	exit();
+//}
+//// functionality to update payment values for partner login
+//if($_POST["paytype"]=="pt_spot" ){
+//    $customer_data = array();
+//    if(isset($_POST['email'])){
+//        $customer_data['fname'] = $_POST['fname'];
+//        $customer_data['lname'] = $_POST['lname'];
+//        $customer_data['address'] = $_POST['address'];
+//        $customer_data['mobile'] = $_POST['address'];
+//        $customer_data['email'] = $_POST['email'];
+//        $customer_data['city'] = $_POST['city'];
+//        $customer_data['country'] = $_POST['country'];
+//    }
+//    mysql_select_db($database_eventscon, $eventscon);
+//    $query_update = sprintf("UPDATE ticket_orders SET partner_id = ".$_SESSION['PP_UserId'].",ccapproved = 'Yes', payment_status = 'paid',customer_info = '".serialize($customer_data)."' WHERE oid = %s", $_SESSION['orderid']);
+//    $update = mysql_query($query_update, $eventscon) or die(mysql_error());
+//    $orderid=$_SESSION['orderid'];
+//    $custid=$_SESSION['custid'];
+//    //if(isset($_SESSION['PP_UserId'])){
+//    //    header("Location:download_tickets.php");
+//    //} else {
+//    //    header("Location:events_confirm.php");
+//    //}
+//    exit();
+//}
 //End of partner functionality
 ##Hashing algorithm
 function SignData($post_data,$secretKey,$fieldList) 
@@ -100,7 +100,7 @@ $data = array(
 				'ivp_amount'	=> (int)$_SESSION['total'],
 				'ivp_currency'	=> 'AED',
 				'ivp_desc'	=> trim($row_eventRs['title']),
-				'return_auth'	=> $domain.'events_confirm.php',
+				'return_auth'	=> $domain.'test_session.php',
 				'return_can'	=> $domain.'events_cancelled.php',
 				'return_decl'	=> $domain.'events_cancelled.php',
 				'bill_fname'	=> $_SESSION['Customer']['fname'],
@@ -116,6 +116,7 @@ $payload=array('headers'=>array(),'body'=>http_build_query($data));
 //var_dump(http_build_query($data));
 $gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
 //var_dump($gatewayUrl);
+session_start();
 $_SESSION['payment_order_ref']=$gatewayUrl['order']['ref'];
 
 header('Cache-Control: no-cache');

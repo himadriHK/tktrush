@@ -35,7 +35,7 @@ if (isset($_POST['username'])) {
 
   	
 
-  $LoginRS__query=sprintf("SELECT login, spid, email FROM partners WHERE login='%s' AND password='%s' and blockuser = 'No'",
+  $LoginRS__query=sprintf("SELECT * FROM partners WHERE login='%s' AND password='%s' and blockuser = 'No'",
 
   get_magic_quotes_gpc() ? $loginUsername : addslashes($loginUsername), get_magic_quotes_gpc() ? $password : addslashes($password)); 
 
@@ -58,6 +58,7 @@ if (isset($_POST['username'])) {
     //declare two session variables and assign them
 
     $_SESSION['PP_Username'] = $loginUsername;
+	$_SESSION['Customer']=array("fname"=>$_SESSION['PP_Username'],"lname"=>'',"address"=>'NA',"mobile"=>$row_LoginRS["phone"],"email"=>$row_LoginRS["email"],"city"=>$row_LoginRS["website"],"type"=>'partner',"cust_id"=>$row_LoginRS["spid"]);
 
     $_SESSION['PP_UserGroup'] = $loginStrGroup;
 

@@ -4,14 +4,16 @@ ini_set('display_errors', 1);*/
 ?>
 <?php require_once('Connections/eventscon.php'); ?>
 <?php
+//session_start();
+//var_dump($_SESSION);
 $colname_salesRs = "-1";
-if (isset($_SESSION['MM_UserId'])) {
-  $colname_salesRs = (get_magic_quotes_gpc()) ? $_SESSION['MM_UserId'] : addslashes($_SESSION['MM_UserId']);
+if (@$_SESSION['PP_UserId']) {
+  $colname_salesRs = (get_magic_quotes_gpc()) ? $_SESSION['PP_UserId'] : addslashes($_SESSION['PP_UserId']);
 }
 //echo $_SESSION['MM_UserId'];exit;
 mysql_select_db($database_eventscon, $eventscon);
 //$query_events = sprintf("SELECT tid, title, dtcm, commission FROM events WHERE promoter = %s ORDER BY title ASC", $_SESSION['MM_UserId']);
-$query_events = "SELECT tid, title, dtcm, commission,credit_charge,service_charge FROM events WHERE promoter = '".$_SESSION['MM_UserId']."' ORDER BY title ASC";
+$query_events = "SELECT tid, title, dtcm, commission,credit_charge,service_charge FROM events WHERE partner = '".@$_SESSION['PP_UserId']."' ORDER BY title ASC";
 //echo $query_events."<br>";
 $events = mysql_query($query_events, $eventscon) or die(mysql_error());
 $row_events = mysql_fetch_assoc($events);
@@ -41,9 +43,10 @@ body {
       		window.location="http://www.tktrush.com/salesInfoPdf.php";
       	}
 </script>
+
 <table width="100%" border="0" cellspacing="1" cellpadding="0" style="margin:0 0 0px;">
   <tr>
-    <td height="30" bgcolor="#CCCCCC"><span class="eventHeader">Welcome <? echo $_SESSION['MM_Username']; ?>,</span></td>
+    <td height="30" bgcolor="#CCCCCC"><span class="eventHeader">Welcome <?php echo $_SESSION['PP_Username']; ?>,</span></td>
   </tr>
 
 </table>
@@ -138,40 +141,45 @@ else {
 //print_r($dataIds);
 if(!empty($implodeids))
 {
-$query_priceRs_1 = "
-SELECT COUNT(cust_id) as firstCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=15 AND age<=25
-UNION ALL
-SELECT COUNT(cust_id) as secondCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=26 AND age<=35
-UNION ALL
-SELECT COUNT(cust_id) as thirdCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=36 AND age<=45
-UNION ALL
-SELECT COUNT(cust_id) as fourthCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=46 AND age<=55
-UNION ALL
-SELECT COUNT(cust_id) as fifthCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=56 AND age<=65
-UNION ALL
-SELECT COUNT(cust_id) as sixthCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=66 AND age<=75
-UNION ALL
-SELECT COUNT(cust_id) as seventhCount FROM `customers` WHERE cust_id IN ('".$implodeids."') AND age>=76 AND age<=85
+$query_priceRs_1 = " select * from
+(SELECT COUNT(cust_id) cnt,'15-25' FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=15 AND age<=25)
+UNION 
+SELECT IFNULL(COUNT(cust_id),0) cnt,'26-35'   FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=26 AND age<=35)
+UNION 
+SELECT COUNT(cust_id) cnt,'36-45'   FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=36 AND age<=45)
+UNION 
+SELECT COUNT(cust_id) cnt,'46-55'   FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=46 AND age<=55)
+UNION 
+SELECT COUNT(cust_id) cnt,'56-65'  FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=56 AND age<=65)
+UNION 
+SELECT COUNT(cust_id) cnt,'66-75'   FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=66 AND age<=75)
+UNION 
+SELECT COUNT(cust_id) cnt,'76-85'   FROM `customers` WHERE cust_id IN ('".$implodeids."') AND (age>=76 AND age<=85)) t
 ";
 $keyArr = array('15-25','26-35','36-45','46-55','56-65','66-75','76-85');
+//var_dump($query_priceRs_1);
 $executeagebracketQuery = mysql_query($query_priceRs_1, $eventscon) or die(mysql_error());
 /*$totalTicketsSoldArr = mysql_fetch_assoc($executeTotalTicketsSoldQuery);
 print_r($totalTickticketSoldetsSoldArr);*/
 $customeragebracketdata =array();
-while ($ageBracketsRow= mysql_fetch_assoc($executeagebracketQuery)) {
-     $b[] = $ageBracketsRow;
-     ///$ticketDataHeading = array('Month', 'Tickets Sold');
-     //$a = $keyArr;
-     //$b = $ageBracketsRow;
-     //$c = array_combine($a, $b);
-     //$ticketdataRows = array($ticketSoldRow['month'], (int)$ticketSoldRow['total']);
-     //array_push($ticketsSolddata,$ticketdataRows);
-     //unset($ticketsSolddata[2]);
-     
-     
-     
-  }
-  
+$ageBracketsRow= mysql_fetch_assoc($executeagebracketQuery);
+$b[] = $ageBracketsRow;
+//while ($ageBracketsRow= mysql_fetch_assoc($executeagebracketQuery)) {
+//     $b[] = $ageBracketsRow;
+//     ///$ticketDataHeading = array('Month', 'Tickets Sold');
+//     //$a = $keyArr;
+//     //$b = $ageBracketsRow;
+//     //$c = array_combine($a, $b);
+//     //$ticketdataRows = array($ticketSoldRow['month'], (int)$ticketSoldRow['total']);
+//     //array_push($ticketsSolddata,$ticketdataRows);
+//     //unset($ticketsSolddata[2]);
+//     
+//     
+//     
+//  }
+
+var_dump($ageBracketsRow);  
+ 
   if(!empty($b))
   {
   	foreach($b as $vals)
@@ -181,6 +189,8 @@ while ($ageBracketsRow= mysql_fetch_assoc($executeagebracketQuery)) {
   }
   $a = $keyArr;
   $bc = $arrAgeBrackets;
+  //var_dump($a);
+  //var_dump($bc);
   $c = array_combine($a, $bc);
   //print_r($c);
   $ageData = array();
@@ -330,7 +340,7 @@ $totalRows_salesRs = mysql_num_rows($salesRs);
 </table></td>
     </tr>
     
-    <?php echo $commissionDtcmAdd; ?> 
+    <?php echo @$commissionDtcmAdd; ?> 
    
     <tr<?php echo $trbgcolor ?>>
       <td width="150" align="right" bgcolor="#CCCCCC" class="style1 brder1"><div align="center">Total</div></td>

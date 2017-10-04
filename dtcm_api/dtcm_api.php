@@ -1,5 +1,5 @@
 <?php include('httpful.phar');
-include_once('../Connections/eventscon.php'); 
+include_once($_SERVER['DOCUMENT_ROOT'].'/Connections/eventscon.php'); 
 
 //$mapp=array('dtcm_access_token'=>'a','dtcm_access_token_expires'=>0);
 //$GLOBALS['map']=$mapp;
