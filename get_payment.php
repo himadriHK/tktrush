@@ -14,9 +14,14 @@ session_start();
 //	$ctr=$ctr-1;
 //}
 
-if(strpos($_SESSION['orderid'],"paid"))
+if(isset($_SESSION['orderid'])&&strpos($_SESSION['orderid'],"paid"))
 {
 	echo "OK";
+	unset($_SESSION['orderid']);
+}
+elseif(isset($_SESSION['orderid'])&&strpos($_SESSION['orderid'],"cancelled"))
+{
+	echo "CAN";
 	unset($_SESSION['orderid']);
 }
 else
