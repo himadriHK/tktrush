@@ -49,7 +49,7 @@ function getDtcmPriceVal($id,$ticket_prices){
 }
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "form1")) {
 if(isset($_SESSION['Customer']['cust_id']) && !isset($_SESSION['Customer']['type']) && $_SESSION['Customer']['type']!='partner'){
-	echo "HEREEEEEEEEEEE";
+	//echo "HEREEEEEEEEEEE";
     $cust_sql = "UPDATE customers set city='" . $_POST['city'] . "', mobile='" . $_POST['mobile'] . "', fname='" . $_POST['fname'] . "', lname='" . $_POST['lname'] . "', address='" . $_POST['address'] . "' where cust_id='" . $_SESSION['Customer']['cust_id'] . "'";
     mysql_query($cust_sql);
     $cust_sql = "select * from customers where cust_id=" . $_SESSION['Customer']['cust_id'];

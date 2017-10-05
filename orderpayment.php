@@ -114,13 +114,17 @@ $data = array(
 //include("/dtcm_api/dtcm_api.php");
 $payload=array('headers'=>array(),'body'=>http_build_query($data));
 //var_dump(http_build_query($data));
-$gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
+//$gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
 //var_dump($gatewayUrl);
 @session_start();
 if(isset($_SESSION['Customer']['type'])&&$_SESSION['Customer']['type']=='partner')
 	$_SESSION['payment_order_ref']=$_SESSION['orderid'].$_SESSION['orderid'];
 else
+{
+$gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
 $_SESSION['payment_order_ref']=$gatewayUrl['order']['ref'];
+
+}
 
 header('Cache-Control: no-cache');
 header('Pragma: no-cache');

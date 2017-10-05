@@ -58,7 +58,7 @@ if (isset($_POST['username'])) {
     //declare two session variables and assign them
 
     $_SESSION['PP_Username'] = $loginUsername;
-	$_SESSION['Customer']=array("fname"=>$_SESSION['PP_Username'],"lname"=>'',"address"=>'NA',"mobile"=>$row_LoginRS["phone"],"email"=>$row_LoginRS["email"],"city"=>$row_LoginRS["website"],"type"=>'partner',"cust_id"=>$row_LoginRS["spid"]);
+	$_SESSION['Customer']=array("fname"=>$_SESSION['PP_Username'],"lname"=>'',"address"=>'NA',"mobile"=>$row_LoginRS["phone"],"email"=>$row_LoginRS["email"],"city"=>$row_LoginRS["website"],"type"=>'partner',"cust_id"=>$row_LoginRS["spid"],"country"=>"NA");
 
     $_SESSION['PP_UserGroup'] = $loginStrGroup;
 

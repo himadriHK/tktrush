@@ -216,18 +216,24 @@ $totalRows_events = mysql_num_rows($events);
                     <?php
                     do {
                         $buyerInfo = null;
-                        $selectedSeats = unserialize($ordersList['selected_seats']);
+                        $selectedSeats = $ordersList;//unserialize($ordersList['selected_seats']);
+						var_dump($ordersList);
                         $ticketsQty = 0;
                         $cTicketsQty = 0;
-                        foreach($selectedSeats['tickets'] as $key=>$qty){
-                            $purchasedTickets[$key] = $key;
-                            $ticketsQty +=$qty;
-                        }
-                        foreach($selectedSeats['ctickets'] as $key=>$cQty){
-                            //$purchasedTickets[$key] = $key;
-                            $cTicketsQty +=$cQty;
-                        }
-
+                        //foreach($selectedSeats['tickets'] as $key=>$qty){
+						//	echo "--".$key;
+                        //    $purchasedTickets[$key] = $key;
+                        //    $ticketsQty +=$qty;
+                        //}
+						$ticketsQty +=$selectedSeats['tickets'];
+						
+                        //foreach($selectedSeats['ctickets'] as $key=>$cQty){
+                        //    //$purchasedTickets[$key] = $key;
+                        //    $cTicketsQty +=$cQty;
+                        //}
+						$cTicketsQty +=$selectedSeats['ctickets'];
+						
+						var_dump($purchasedTickets);
                         $query_priceRs = "SELECT price, cprice,tickets FROM event_prices WHERE tid = " . $row_events['tid'] . " AND pid IN(".implode(',',$purchasedTickets).") order by price desc";
                         //echo $query_priceRs;
                         $priceRs = mysql_query($query_priceRs, $eventscon) or die(mysql_error());

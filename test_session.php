@@ -4,15 +4,16 @@ include("config.php");
 include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/api_test.php');
 include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/dtcm_api.php');
 ini_set('display_errors',1);
+define('DISPLAY_XPM4_ERRORS', false);
 //require_once('model_function.php');
 session_regenerate_id();
 @session_start();
 //echo "here should be sesion data \n";
-var_dump($_SESSION);
+
 $data = array(
 				'ivp_method'	=> "check",
 				'ivp_store'	=> '12778' ,
-				'order_ref'	=> $_SESSION['payment_order_ref'],
+				'order_ref'	=> @$_SESSION['payment_order_ref'],
 				'ivp_authkey'	=> 'tp3L^9CLZh@QcfTM',
 				);
 $payload=array('headers'=>array(),'body'=>http_build_query($data));
@@ -28,7 +29,7 @@ if(!isset($_SESSION['payment_order_ref']))
 if(isset($_SESSION['Customer']['type'])&&$_SESSION['Customer']['type']=='partner')
 {
 	echo "Here----";
-	$gatewayUrl=array("order"=>array("transaction"=>array("status"=>"A","ref"=>$_SESSION['orderid'].$_SESSION['orderid']),"amount"=>"0",));
+	$gatewayUrl=array("order"=>array("transaction"=>array("status"=>"A","ref"=>$_SESSION['orderid'].$_SESSION['orderid']),"amount"=>$_SESSION['total'],));
 }
 else
 $gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
@@ -221,8 +222,11 @@ foreach($replace_arr as $key => $val){
     	$html_parsed = str_replace($key,$val,$html_parsed);
     }
 $m->Html($html_parsed,'utf-8','base64');
-$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush');
+$c='';
+//$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush');
+
 //var_dump($m);
+if($c)
 $m->Send($c);
 }
 //if($_GET['vpc_Message']=="Approved"){
@@ -249,5 +253,6 @@ unset($_SESSION['purchased_order_id']);
 
 session_regenerate_id();
 @session_start();
+var_dump($_SESSION);
 //echo "<html>\n<script>window.close();</script>\n</html>";
 ?>

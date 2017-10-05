@@ -3,8 +3,8 @@
 # Type="MYSQL"
 # HTTP="true"
 include_once("Medoo.php");
-include_once('/dtcm_api/api_test.php');
-include_once('/dtcm_api/dtcm_api.php');
+include_once($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/api_test.php');
+include_once($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/dtcm_api.php');
 ob_start();
 use Medoo\Medoo;
 @session_start();
@@ -95,7 +95,7 @@ function getEventPrices($event_id)
 				
 				array_push($Prices,array('PriceId'=>$price['pid'],'PriceTypeId'=>$price['pid'],'PriceCategoryId'=>$price['pid'],'PriceCategoryCode'=>$price['pid'],'PriceTypeId'=>$price['pid'],'PriceTypeCode'=>'A','PriceNet'=>$price['price']*100));
 				
-				array_push($Prices,array('PriceId'=>"-".$price['pid'],'PriceTypeId'=>'-'.$price['pid'],'PriceCategoryId'=>'-'.$price['pid'],'PriceCategoryCode'=>$price['pid'],'PriceTypeId'=>'-'.$price['pid'],'PriceTypeCode'=>'C','PriceNet'=>$price['cprice']*100));
+				array_push($Prices,array('PriceId'=>"-".$price['pid'],'PriceTypeId'=>'-'.$price['pid'],'PriceCategoryId'=>$price['pid'],'PriceCategoryCode'=>$price['pid'],'PriceTypeId'=>'-'.$price['pid'],'PriceTypeCode'=>'C','PriceNet'=>$price['cprice']*100));
 				
 				$tmp= array('PriceCategories'=>$PriceCategories,'PriceTypes'=>$PriceTypes,'TicketPrices'=>array('Prices'=>$Prices));
 				
@@ -163,7 +163,8 @@ function getOrderDetails($order_id,$dtcm)
 {
 	if($dtcm=="Yes")
 	{
-		return json_decode($dtcm_->get_dtcm_order($order_id,true));
+		global $dtcm_;
+		return json_decode($dtcm_->get_dtcm_order($order_id),true);
 	}
 	elseif($dtcm=="No")
 	{
@@ -180,13 +181,21 @@ function getOrderDetails($order_id,$dtcm)
 		if($data&&$price_data){
 		if($data["payment_status"]=="paid")
 		{
+			if($data["tickets"]){
 			for($i=1;$i<=$data["tickets"];$i++)
 			{
 				array_push($OrderLineItems,array("Id"=>$i,"PriceCategoryCode"=>$data["pid"],"PriceTypeCode"=>"A","PriceTypeName"=>"Adult","Barcode"=>date('YmdH').$data["oid"].$i,"Price"=>array("Net"=>$price_data["price"]*100),"Seat"=>array("Section"=>"","Row"=>"","Seats"=>"","RzStr"=>"Manual")));
 			}
+			}
+			if($data["ctickets"]){
+				$tmp__=0;
+				if($data["tickets"])
+					$tmp__=$data["tickets"];
+				
 			for($i=1;$i<=$data["ctickets"];$i++)
 			{
-				array_push($OrderLineItems,array("Id"=>$i,"PriceCategoryCode"=>"-".$data["pid"],"PriceTypeCode"=>"C","PriceTypeName"=>"Child","Barcode"=>date('YmdH').$data["oid"].$i,"Price"=>array("Net"=>$price_data["cprice"]*100),"Seat"=>array("Section"=>"","Row"=>"","Seats"=>"","RzStr"=>"Manual")));
+				array_push($OrderLineItems,array("Id"=>$i+$tmp__,"PriceCategoryCode"=>$data["pid"],"PriceTypeCode"=>"C","PriceTypeName"=>"Child","Barcode"=>date('YmdH').$data["oid"].($i+$tmp__),"Price"=>array("Net"=>$price_data["cprice"]*100),"Seat"=>array("Section"=>"","Row"=>"","Seats"=>"","RzStr"=>"Manual")));
+			}
 			}
 		}}
 		if(!$database->error()||$database->error()[1]==null)

@@ -5,7 +5,7 @@ require_once('mail_plugin/MAIL5.php');
 
 //var_dump($m);
 
-$hostname_eventscon ="localhost";// "10.168.1.47";
+$hostname_eventscon ="localhost";//"10.168.1.47";
 $database_eventscon = "tktrushc_dbase";
 $username_eventscon = "tktrushc_user";
 $password_eventscon = "LP0q221p";
@@ -18,13 +18,13 @@ $row_orderRs = mysql_fetch_assoc($orderRs);
 //print_r($row_orderRs);echo "<br>";
 $totalRows_orderRs = mysql_num_rows($orderRs);
 //echo $query_orderRS;
-mysql_select_db($database_eventscon, $eventscon);
-$query_custRS = sprintf("SELECT * FROM customers WHERE cust_id =%s", $_SESSION['Customer']['cust_id']);
+//mysql_select_db($database_eventscon, $eventscon);
+//$query_custRS = sprintf("SELECT * FROM customers WHERE cust_id =%s", $_SESSION['Customer']['cust_id']);
 //echo $query_custRS."<br>";
-$custRs = mysql_query($query_custRS, $eventscon) or die(mysql_error());
-$row_custRs = mysql_fetch_assoc($custRs);
+//$custRs = mysql_query($query_custRS, $eventscon) or die(mysql_error());
+$row_custRs = $_SESSION['Customer'];
 //print_r($row_custRs);echo "<br>";
-$totalRows_custRs = mysql_num_rows($custRs);
+$totalRows_custRs = 1;
 //echo $query_custRS;
 mysql_select_db($database_eventscon, $eventscon);
 $query_eventRS = sprintf("SELECT tid, title FROM events WHERE tid = %s", $row_orderRs['tid']);
@@ -96,37 +96,37 @@ $body .= "Total Amount: ".$row_orderRs['ticket_price']."\r\n";
 
 //echo $body;exit;
 $to = $row_custRs['email'];
-$subject = "Your electronic tickets and payment receipt for".$row_eventRs['title'];
-$headers = "From: Ticket Rush <tickets@tktrush.com>\r\n";
-$headers .= "Reply-To: Ticket Rush <tickets@tktrush.com>\r\n";
-$headers .= "Cc: Ticket Rush <info@tktrush.com>\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
+$subject = "Your electronic tickets and payment receipt for ".$row_eventRs['title'];
+//$headers = "From: Ticket Rush <tickets@tktrush.com>\r\n";
+//$headers .= "Reply-To: Ticket Rush <tickets@tktrush.com>\r\n";
+//$headers .= "Cc: Ticket Rush <info@tktrush.com>\r\n";
+//$headers .= "MIME-Version: 1.0\r\n";
 //$file = dirname(__FILE__).'/vouchers/eventticket_'.$row_orderRs['order_number'].".pdf";
 //$file_size = filesize($file);
 //$handle = fopen($file, "r");
 //$content = fread($handle, $file_size);
 //fclose($handle);
-$content = chunk_split(base64_encode($content));
+//$content = chunk_split(base64_encode($content));
 $uid = md5(uniqid(time()));
 //$name = basename($file);
-$headers .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n";
-$headers .= "This is a multi-part message in MIME format.\r\n";
-$headers .= "--".$uid."\r\n";
-$headers .= "Content-type:text/plain; charset=iso-8859-1\r\n";
-$headers .= "Content-Transfer-Encoding: 7bit\r\n";
-$headers .= $body."\r\n";
-$headers .= "--".$uid."\r\n";
-$headers .= "Content-Type: application/pdf; name=\"eventticket_".$row_orderRs['order_number'].".pdf\"\r\n"; // use different content types here
-$headers .= "Content-Transfer-Encoding: base64\r\n";
-$headers .= "Content-Disposition: attachment; filename=\"eventticket_".$row_orderRs['order_number'].".pdf\"\r\n";
-$headers .= $content."\r\n";
-$headers .= "--".$uid."--";
+//$headers .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n";
+//$headers .= "This is a multi-part message in MIME format.\r\n";
+//$headers .= "--".$uid."\r\n";
+//$headers .= "Content-type:text/plain; charset=iso-8859-1\r\n";
+//$headers .= "Content-Transfer-Encoding: 7bit\r\n";
+//$headers .= $body."\r\n";
+//$headers .= "--".$uid."\r\n";
+//$headers .= "Content-Type: application/pdf; name=\"eventticket_".$row_orderRs['order_number'].".pdf\"\r\n"; // use different content types here
+//$headers .= "Content-Transfer-Encoding: base64\r\n";
+//$headers .= "Content-Disposition: attachment; filename=\"eventticket_".$row_orderRs['order_number'].".pdf\"\r\n";
+////$headers .= $content."\r\n";
+//$headers .= "--".$uid."--";
 //$mail_sent = mail( $to, $subject, $body,'');// $headers );
-$m = new MAIL5; // initialize MAIL class
+$m = @new MAIL5; // initialize MAIL class
 $m->From('tickets@tktrush.com'); // set from address
 $m->AddTo($row_custRs['email']); // add to address
 $m->Subject($subject); // set subject
-$m->Text($body); // set text message
+//$m->Text($body); // set text message
 //$m->Attach(file_get_contents($file), FUNC5::mime_type($file), $name, null, null, 'attachment', MIME5::unique());
 //// connect to MTA server 'smtp.hostname.net' port '25' with authentication: 'username'/'password'
 //$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush') or die(print_r($m->Result));
