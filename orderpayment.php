@@ -115,7 +115,7 @@ $data = array(
 $payload=array('headers'=>array(),'body'=>http_build_query($data));
 //var_dump(http_build_query($data));
 //$gatewayUrl=json_decode(wp_remote_post('https://secure.telr.com/gateway/order.json',$payload),true);
-//var_dump($gatewayUrl);
+var_dump($_SESSION);
 @session_start();
 if(isset($_SESSION['Customer']['type'])&&$_SESSION['Customer']['type']=='partner')
 	$_SESSION['payment_order_ref']=$_SESSION['orderid'].$_SESSION['orderid'];
@@ -134,7 +134,7 @@ if(isset($_SESSION['Customer']['type'])&&$_SESSION['Customer']['type']=='partner
 	header('Location: /test_session.php',TRUE,302);
 }
 else
-header('Location: '.$gatewayUrl['order']['url'],TRUE,302);
+header('Locationn: '.$gatewayUrl['order']['url'],TRUE,302);
     //echo "<html>\n";
     //echo "<head><title>Processing Payment...</title>";
     //echo "<meta http-equiv=\"content-type\" content=\"text/html charset=UTF-8\" />";

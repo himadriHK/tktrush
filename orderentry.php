@@ -48,7 +48,7 @@ function getDtcmPriceVal($id,$ticket_prices){
 	return '';
 }
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "form1")) {
-if(isset($_SESSION['Customer']['cust_id']) && !isset($_SESSION['Customer']['type']) && $_SESSION['Customer']['type']!='partner'){
+if(isset($_SESSION['Customer']['cust_id']) && !isset($_SESSION['Customer']['type']) && @$_SESSION['Customer']['type']!='partner'){
 	//echo "HEREEEEEEEEEEE";
     $cust_sql = "UPDATE customers set city='" . $_POST['city'] . "', mobile='" . $_POST['mobile'] . "', fname='" . $_POST['fname'] . "', lname='" . $_POST['lname'] . "', address='" . $_POST['address'] . "' where cust_id='" . $_SESSION['Customer']['cust_id'] . "'";
     mysql_query($cust_sql);
@@ -92,7 +92,7 @@ $ticket_prices = $prices;
 $basket_info=array();
 $b=1;
 $pcats=getEventPrices($eid);
-var_dump($_SESSION);
+var_dump($_POST);
 foreach($_POST['tickets'] as $key=>$val)
 	{
 		$ticket_type=substr($key,-1);
@@ -107,6 +107,13 @@ foreach($_POST['tickets'] as $key=>$val)
 			//var_dump($pids);
             $total_price=$total_price+($price_values['PriceNet']/100*$val);
 		}
+	}
+	if($_POST['extra_services'])
+	{
+		global $database;
+		$service_price=$database->query("select price from event_services where id=:id",[":id"=>$_POST['extra_services']])->fetchAll();
+		//var_dump($service_price);
+		$total_price=$total_price+$service_price[0]["price"];
 	}
 	//$total_price=$total_price+($total_price*0.05)+2;
 $pids=implode(",",$pids);
@@ -153,13 +160,13 @@ if(!empty($basket_info)){
 	//var_dump(print_r($basket_details));
 	$basket_id = $basket_details['Id'];
 	$_SESSION['dtcm_order_id']=$basket_id;
-	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,$basket_id,"");
+	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,$basket_id,$_POST['extra_services']);
 	$_SESSION['orderid']=$order_id;
 	$_SESSION['total']=$total_price;
 	}
 	elseif($_SESSION['dtcm_event']=='No')
 	{
-		$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,"-1","");
+		$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,"-1",$_POST['extra_services']);
 		$_SESSION['orderid']=$order_id;
 		$_SESSION['total']=$total_price;
 		//bookTicketForEvent($cust_id,$eventcode,$pid,$partner_id,$order_number,$transaction_code,$selected_seats,$charges,$ticket_price,$order_date,$event_date,$payment_type,$tickets,$ctickets,$basket_id,$extra_services)
