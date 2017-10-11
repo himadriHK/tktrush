@@ -42,12 +42,12 @@ $(function () {
         e.preventDefault();
         $(this).tab('show');
     });
-    $('.left-primary-nav li a').tooltip({
-        placement: 'right'
-    });
-	$('.row-action .btn').tooltip({
-        placement: 'top'
-    });
+  //  $('.left-primary-nav li a').tooltip({
+  //      placement: 'right'
+  //  });
+	//$('.row-action .btn').tooltip({
+    //    placement: 'top'
+    //});
 });
 
 
@@ -57,9 +57,9 @@ $(function () {
 
 $(function () {
 
-    $('.top-right-toolbar a').tooltip({
-        placement: "top"
-    });
+    //$('.top-right-toolbar a').tooltip({
+    //    placement: "top"
+    //});
 
 
 });
