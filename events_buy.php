@@ -1084,7 +1084,7 @@ if(isset($_GET['eid'])){
 
 <?php require_once('footer.php'); ?>
 	<?php
-	mysql_free_result($eventRs);
+	@mysql_free_result($eventRs);
 	?>
         <script type="text/javascript" src="jquery-ui.js" ></script>
         <link rel="stylesheet" href="jquery-ui.css"/>
