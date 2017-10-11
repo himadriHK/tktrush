@@ -151,6 +151,11 @@ $seats_str='';
 //var_dump($price_types);
 $count=count($orderDetails['OrderItems'][0]['OrderLineItems']);
 $ticket_array=array();
+global $database;
+$event_=$database->query("select * from events where tid=:tid",[":tid"=>$order["tid"]])->fetchAll();
+$event=$event[0];
+$gatesopen=date('jS \of F Y',@strtotime(substring($order['event_date'],0,10).$event["doors_open"]));
+
 foreach ($orderDetails['OrderItems'][0]['OrderLineItems'] as $item) { 
 //var_dump($item);
 //var_dump(multidimensional_search($price_types,array('PriceTypeCode'=>$item['PriceTypeCode'])));
