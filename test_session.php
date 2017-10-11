@@ -4,7 +4,7 @@ include("config.php");
 include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/api_test.php');
 include($_SERVER['DOCUMENT_ROOT'].'/dtcm_api/dtcm_api.php');
 ini_set('display_errors',1);
-define('DISPLAY_XPM4_ERRORS', false);
+define('DISPLAY_XPM4_ERRORS', true);
 //require_once('model_function.php');
 session_regenerate_id();
 @session_start();
@@ -54,7 +54,7 @@ if($gatewayUrl['order']['transaction']['status']=='A'||$gatewayUrl['order']['tra
 {
 updatePaymentStatus($_SESSION['orderid'],'paid');
 if($_SESSION['dtcm_event']=='Yes')	{
-$purchaseTicket=json_decode($dtcm_->purchase_basket_dtcm(array($_SESSION['dtcm_order_id'],$gatewayUrl['order']['amount']*100)),true);
+$purchaseTicket=json_decode($dtcm_->purchase_basket_dtcm(array($_SESSION['dtcm_order_id'],($gatewayUrl['order']['amount']-$_SESSION['extra_service_fees'])*100)),true);
 if($purchaseTicket=='NULL'||!$purchaseTicket) 
 {
 	session_regenerate_id();
@@ -116,9 +116,7 @@ $msg = "You have successfully ordered your ticket. Please scroll down and downlo
 		</p></td>
         <td width="10">&nbsp;</td>
       </tr>
-      <tr>
-        <td colspan="3" background="images/g-dot.jpg"><img src="images/g-dot.jpg" width="7" height="7" /></td>
-        </tr>
+     
     </table></td>
   </tr>
 </table>
@@ -153,8 +151,8 @@ $count=count($orderDetails['OrderItems'][0]['OrderLineItems']);
 $ticket_array=array();
 global $database;
 $event_=$database->query("select * from events where tid=:tid",[":tid"=>$order["tid"]])->fetchAll();
-$event=$event[0];
-$gatesopen=date('jS \of F Y',@strtotime(substring($order['event_date'],0,10).$event["doors_open"]));
+$event_=$event_[0];
+$gatesopen=date('jS \of F Y h:i:s A',strtotime(substr($order['event_date'],0,10).' '.$event_["doors_open"]));
 
 foreach ($orderDetails['OrderItems'][0]['OrderLineItems'] as $item) { 
 //var_dump($item);
@@ -163,7 +161,7 @@ $seats_str=$item['Seat']['Section']."/".$item['Seat']['Row']."/".$item['Seat']['
 $barcode=$item['Barcode'];
 $replace_arr = array(
 '%%eventdate%%'=>date('Y-m-d',@strtotime($order['event_date'])),
-'%%gatesopen%%'=>date('jS \of F Y',@strtotime($order['event_date'])),
+'%%gatesopen%%'=>$gatesopen,
 '%%orderno%%'=>$_SESSION['orderid'],
 //'%%PurchaseDate%%'=>date('Y-m-d',strtotime($order['order_date'])),
 '%%transactionref%%'=>$gatewayUrl['order']['transaction']['ref'],
@@ -214,7 +212,7 @@ fclose($file);
 $html_parsed=$html_raw;
 $file=$file_location;
 //
-$m->Attach(file_get_contents($file_location), FUNC5::mime_type($file_location), basename($file_location), null, null, 'attachment', MIME5::unique());
+//$m->Attach(file_get_contents($file_location), FUNC5::mime_type($file_location), basename($file_location), null, null, 'attachment', MIME5::unique());
 // connect to MTA server 'smtp.hostname.net' port '25' with authentication: 'username'/'password'
 }
 ob_start();
@@ -226,13 +224,11 @@ foreach($replace_arr as $key => $val){
 		//var_dump($val);
     	$html_parsed = str_replace($key,$val,$html_parsed);
     }
-$m->Html($html_parsed,'utf-8','base64');
-$c='';
+//$m->Html($html_parsed,'utf-8','base64');
+//$c=false;
 //$c = $m->Connect('mail3.gridhost.co.uk', 25, 'tickets@tktrush.com', 'tickets@tktrush');
-
-//var_dump($m);
-if($c)
-$m->Send($c);
+//if($c)
+//$m->Send($c);
 }
 //if($_GET['vpc_Message']=="Approved"){
 //} else { $msg ="Your ticket could not be ordered. Please try again or call customer support.";}

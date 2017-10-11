@@ -92,7 +92,7 @@ $ticket_prices = $prices;
 $basket_info=array();
 $b=1;
 $pcats=getEventPrices($eid);
-var_dump($_POST);
+//var_dump($_POST);
 foreach($_POST['tickets'] as $key=>$val)
 	{
 		$ticket_type=substr($key,-1);
@@ -114,6 +114,7 @@ foreach($_POST['tickets'] as $key=>$val)
 		$service_price=$database->query("select price from event_services where id=:id",[":id"=>$_POST['extra_services']])->fetchAll();
 		//var_dump($service_price);
 		$total_price=$total_price+$service_price[0]["price"];
+		$_SESSION['extra_service_fees']=$service_price[0]["price"];
 	}
 	//$total_price=$total_price+($total_price*0.05)+2;
 $pids=implode(",",$pids);
@@ -163,6 +164,7 @@ if(!empty($basket_info)){
 	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,"",-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,$basket_id,$_POST['extra_services']);
 	$_SESSION['orderid']=$order_id;
 	$_SESSION['total']=$total_price;
+	
 	}
 	elseif($_SESSION['dtcm_event']=='No')
 	{

@@ -15,7 +15,7 @@ $code->setThickness(30);
 $code->setForegroundColor($color_black);
 $code->setBackgroundColor($color_white);
 $code->setFont($font);
-//$code->setChecksum(true);
+$code->setChecksum(true);
 $data = ($_REQUEST['code']!='' && $_REQUEST['code']!='%%code%%')?$_REQUEST['code']:'123456';
 $code->parse($data);
  
