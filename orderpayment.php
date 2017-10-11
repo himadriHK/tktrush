@@ -134,7 +134,7 @@ if(isset($_SESSION['Customer']['type'])&&$_SESSION['Customer']['type']=='partner
 	header('Location: /test_session.php',TRUE,302);
 }
 else
-header('Locationn: '.$gatewayUrl['order']['url'],TRUE,302);
+header('Location: '.$gatewayUrl['order']['url'],TRUE,302);
     //echo "<html>\n";
     //echo "<head><title>Processing Payment...</title>";
     //echo "<meta http-equiv=\"content-type\" content=\"text/html charset=UTF-8\" />";
