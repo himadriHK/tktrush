@@ -159,7 +159,8 @@ foreach ($orderDetails['OrderItems'][0]['OrderLineItems'] as $item) {
 //var_dump(multidimensional_search($price_types,array('PriceTypeCode'=>$item['PriceTypeCode'])));
 $seats_str=$item['Seat']['Section']."/".$item['Seat']['Row']."/".$item['Seat']['Seats'];
 $barcode=$item['Barcode'];
-$database->insert("order_details",array("orderid"=>$_SESSION['orderid'],"category"=>$_SESSION['catname'],"subcategory"=>$price_types[multidimensional_search($price_types,array('PriceTypeCode'=>$item['PriceTypeCode']))]['PriceTypeDescription'],"price"=>$ticket_prices[multidimensional_search($ticket_prices,array('PriceCategoryCode'=>$item['PriceCategoryCode'],'PriceTypeCode'=>$item['PriceTypeCode']))]['PriceNet']/100));
+$tkt_price=$ticket_prices[multidimensional_search($ticket_prices,array('PriceCategoryCode'=>$item['PriceCategoryCode'],'PriceTypeCode'=>$item['PriceTypeCode']))]['PriceNet']/100;
+$database->insert("order_details",array("orderid"=>$_SESSION['orderid'],"category"=>$_SESSION['catname'],"subcategory"=>$price_types[multidimensional_search($price_types,array('PriceTypeCode'=>$item['PriceTypeCode']))]['PriceTypeDescription'],"price"=>$tkt_price,'commission'=>($row_eventRs_["commission"]*$tkt_price)/100,'partner_comm'=>($tkt_price*$row_eventRs_["partner_commission"])/100,'dtcm_charges'=>($tkt_price*$row_eventRs_["dtcm"])/100));
 $replace_arr = array(
 '%%eventdate%%'=>date('Y-m-d',@strtotime($order['event_date'])),
 '%%gatesopen%%'=>$gatesopen,

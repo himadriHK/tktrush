@@ -162,14 +162,14 @@ if(!empty($basket_info)){
 	//var_dump(print_r($basket_details));
 	$basket_id = $basket_details['Id'];
 	$_SESSION['dtcm_order_id']=$basket_id;
-	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,$row_eventRs["partner"],-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,$basket_id,$_POST['extra_services']);
+	$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,$row_eventRs["partner"],-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,$basket_id,$_POST['extra_services'],($row_eventRs["commission"]*$total_price)/100,($row_eventRs["partner_commission"]*$total_price)/100,($row_eventRs["dtcm"]*$total_price)/100);
 	$_SESSION['orderid']=$order_id;
 	$_SESSION['total']=$total_price;
 	
 	}
 	elseif($_SESSION['dtcm_event']=='No')
 	{
-		$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,$row_eventRs["partner"],-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,"-1",$_POST['extra_services']);
+		$order_id=bookTicketForEvent($_SESSION['custid'],$eid,$pids,$row_eventRs["partner"],-1,"","",0,$total_price,date('Y-m-d'),$row_eventRs['date_start'],'cc',$tot_tickets,$tot_ctickets,"-1",$_POST['extra_services'],($row_eventRs["commission"]*$total_price)/100,($row_eventRs["partner_commission"]*$total_price)/100,($row_eventRs["dtcm"]*$total_price)/100);
 		$_SESSION['orderid']=$order_id;
 		$_SESSION['total']=$total_price;
 		//bookTicketForEvent($cust_id,$eventcode,$pid,$partner_id,$order_number,$transaction_code,$selected_seats,$charges,$ticket_price,$order_date,$event_date,$payment_type,$tickets,$ctickets,$basket_id,$extra_services)

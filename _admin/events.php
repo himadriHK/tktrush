@@ -154,6 +154,24 @@ $(function() {
 
 	jQuery("[name^='iprice']").addClass('price_validator');
 	jQuery("[name^='price']").addClass('price_validator');
+	
+	jQuery("[name^='icprice']").addClass('price_validator');
+	jQuery("[name^='cprice']").addClass('price_validator');
+	
+	jQuery("[name^='itickets']").addClass('price_validator');
+	jQuery("[name^='tickets']").addClass('price_validator');
+	
+	jQuery("[name^='ictickets']").addClass('price_validator');
+	jQuery("[name^='ctickets']").addClass('price_validator');
+	
+	jQuery("[name^='iuser_ticket']").addClass('price_validator');
+	jQuery("[name^='user_ticket']").addClass('price_validator');
+	
+	jQuery("[name^='icuser_ticket']").addClass('price_validator');
+	jQuery("[name^='cuser_ticket']").addClass('price_validator');
+	
+	
+	
 	jQuery.validator.addClassRules("price_validator", {
 		required: [true,"Enter Price"]
 	});
@@ -2254,7 +2272,7 @@ $(function() {
 			?>
             
             <?php
-            switch($f) {
+            switch(@$f) {
 			case 1:
 				addRecordForm();
 			break;

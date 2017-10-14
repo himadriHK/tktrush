@@ -111,7 +111,7 @@ function getEventPrices($event_id)
 		 return $database->error();
 }
 
-function bookTicketForEvent($cust_id,$eventcode,$pid,$partner_id,$order_number,$transaction_code,$selected_seats,$charges,$ticket_price,$order_date,$event_date,$payment_type,$tickets,$ctickets,$basket_id,$extra_services)
+function bookTicketForEvent($cust_id,$eventcode,$pid,$partner_id,$order_number,$transaction_code,$selected_seats,$charges,$ticket_price,$order_date,$event_date,$payment_type,$tickets,$ctickets,$basket_id,$extra_services,$comm,$part_comm,$dtcm_comm)
 {
 	global $database;
 	$database->insert("ticket_orders",array("cust_id"=>$cust_id,"tid"=>$eventcode,"pid"=>$pid,"partner_id"=>$partner_id,"order_number"=>$order_number,"payment_status"=>"unpaid","transaction_code"=>$transaction_code,"selected_seats"=>$selected_seats,"charges"=>$charges,"ticket_price"=>$ticket_price,"order_date"=>$order_date,"event_date"=>$event_date,"payment_type"=>$payment_type,"tickets"=>$tickets,"ctickets"=>$ctickets,"ccapproved"=>'No',"uniquecode"=>"","verifycode"=>"","downloaded"=>0,"basket_id"=>$basket_id,"extra_services"=>$extra_services,"customer_info"=>"","ccomp"=>"","zcomp"=>"","c_basket_id"=>""));

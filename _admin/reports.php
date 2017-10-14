@@ -18,10 +18,11 @@ $pageName = "Reports";
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.3.913/styles/kendo.rtl.min.css" />
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.3.913/styles/kendo.material.mobile.min.css" />
 	<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.3.913/styles/kendo.material.min.css" />
-    <script src="js/jquery.min.js"></script>
+    
     <script src="js/kendo.web.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js"></script>
 	<script src="http://kendo.cdn.telerik.com/2017.3.913/js/kendo.all.min.js"></script>
+	
 </head>
 <body>
 <div class="layout">
@@ -48,7 +49,7 @@ $pageName = "Reports";
 				
 				global $config, $conn,$database;
 				require_once 'Kendo/Autoload.php';
-				$data=$database->query("select p.name Partner,e.title Title,det.category Category,det.subcategory Subcategory,det.price Price,count(*) as tickets_sold,(count(*)*det.price) total_amount from ticket_orders o left outer join partners p on o.partner_id=p.spid, events e, order_details det where e.tid=o.tid and o.payment_status='paid' and o.oid=det.orderid group by p.name,e.title,det.category,det.subcategory,det.price")->fetchAll(PDO::FETCH_ASSOC);
+				$data=$database->query("select p.name Partner,e.title Title,det.category Category,det.subcategory Subcategory,det.price Price,count(*) as tickets_sold,(count(*)*det.price) total_amount,sum(det.commission) commission,sum(det.partner_comm) partner_commission,sum(det.DTCM_charges) DTCM_charges from ticket_orders o left outer join partners p on o.partner_id=p.spid, events e, order_details det where e.tid=o.tid and o.payment_status='paid' and o.oid=det.orderid group by p.name,e.title,det.category,det.subcategory,det.price")->fetchAll(PDO::FETCH_ASSOC);
 //var_dump($data);
 	$model = new \Kendo\Data\DataSourceSchemaModel();
 
@@ -66,6 +67,15 @@ $pageName = "Reports";
     
     $totalAmount=new \Kendo\Data\DataSourceAggregateItem();
     $totalAmount->field('total_amount')->aggregate('sum');
+	
+	$commAmount=new \Kendo\Data\DataSourceAggregateItem();
+    $commAmount->field('commission')->aggregate('sum');
+	
+	$partcommAmount=new \Kendo\Data\DataSourceAggregateItem();
+    $partcommAmount->field('partner_commission')->aggregate('sum');
+	
+	$dtcmAmount=new \Kendo\Data\DataSourceAggregateItem();
+    $dtcmAmount->field('DTCM_charges')->aggregate('sum');
 
     //$model->addField($titleField, $unitPriceField, $ticketsSoldField);
 
@@ -85,11 +95,18 @@ $pageName = "Reports";
 	$group = new \Kendo\Data\DataSourceGroupItem();
 	//$aggregate = new \Kendo\Data\DataSourceGroupItemAggregate();
 	//$aggregate->aggregate('sum');
-	$group->field('Title')->addAggregate($ticketsSoldField)->addAggregate($totalAmount);
+	$group->field('Title')->addAggregate($ticketsSoldField)->addAggregate($totalAmount)->addAggregate($commAmount)->addAggregate($partcommAmount)->addAggregate($dtcmAmount);
+	
+	$group2 = new \Kendo\Data\DataSourceGroupItem();
+	//$aggregate = new \Kendo\Data\DataSourceGroupItemAggregate();
+	//$aggregate->aggregate('sum');
+	$group2->field('Partner')->addAggregate($ticketsSoldField)->addAggregate($totalAmount)->addAggregate($commAmount)->addAggregate($partcommAmount)->addAggregate($dtcmAmount);
+	
 	
     // Specify the schema and data
     $dataSource->data($data)//->serverGrouping(true)
 		   ->addGroupItem($group)
+		   ->addGroupItem($group2)
 		   ->pageSize(10);
 		   //->addAggregateItem($ticketsSoldField);
 		   //->schema($schema);
@@ -98,34 +115,45 @@ $pageName = "Reports";
 
 	
 	$grid = new \Kendo\UI\Grid('grid');
+	$columnFilterable = new \Kendo\UI\GridColumnFilterable();
+$columnFilterable->multi(true)->search(true);
     
     $titleField = new \Kendo\UI\GridColumn();
     $titleField->field('Title')
-                      ->title('Title');
+                      ->title('Title')->filterable($columnFilterable);
     
     $partnerField = new \Kendo\UI\GridColumn();
     $partnerField->field('Partner')
-    ->title('Partner');
+    ->title('Partner')->filterable($columnFilterable);
     
     $catField = new \Kendo\UI\GridColumn();
     $catField->field('Category')
-    ->title('Category');
+    ->title('Category')->filterable($columnFilterable);
     
     $subcatField = new \Kendo\UI\GridColumn();
     $subcatField->field('Subcategory')
-    ->title('Subcategory');
+    ->title('Subcategory')->filterable($columnFilterable);
     
     $unitPriceColumn = new \Kendo\UI\GridColumn();
     $unitPriceColumn->field('Price')
                     ->format('{0} AED')
-                    ->title('Ticket Price');
+                    ->title('Ticket Price')->filterable($columnFilterable);
     
     $ticketsSoldField = new \Kendo\UI\GridColumn();
-    $ticketsSoldField->field('tickets_sold')->title('Tickets Sold')->groupFooterTemplate('Total: #=sum#');
+    $ticketsSoldField->field('tickets_sold')->title('Tickets')->groupFooterTemplate('Total: #=sum#')->filterable($columnFilterable);
     
     $totalAmount=new \Kendo\UI\GridColumn();
-    $totalAmount->field('total_amount')->title('Total Amount')->groupFooterTemplate('Amount: #=sum# AED')->format('{0} AED');
+    $totalAmount->field('total_amount')->title('Total')->groupFooterTemplate('Amount: #=sum# AED')->format('{0} AED')->filterable($columnFilterable);
     
+	$commAmount=new \Kendo\UI\GridColumn();
+    $commAmount->field('commission')->title('Comm')->groupFooterTemplate('Amount: #=sum# AED')->format('{0} AED')->filterable($columnFilterable);
+    
+	$partcommAmount=new \Kendo\UI\GridColumn();
+    $partcommAmount->field('partner_commission')->title('Partner Comm')->groupFooterTemplate('Amount: #=sum# AED')->format('{0} AED')->filterable($columnFilterable);
+	
+	$dtcmAmount=new \Kendo\UI\GridColumn();
+    $dtcmAmount->field('DTCM_charges')->title('DTCM Comm')->groupFooterTemplate('Amount: #=sum# AED')->format('{0} AED')->filterable($columnFilterable);
+	
 	//$unitsInStockCount = new \Kendo\Data\DataSourceAggregateItem();
 	//$unitsInStockCount->field("tickets_sold")->aggregate("count");
 	$pageable = new \Kendo\UI\GridPageable();
@@ -146,12 +174,12 @@ $pdf->allPages(true)
     ->repeatHeaders(true)
     ->templateId("page-template")
     ->scale(0.8)
-    ->fileName('Kendo UI Grid Export.pdf')
+    ->fileName('Export.pdf')
     ->proxyURL('pdf-export.php?type=save');
 	
     $grid->pdf($pdf)->addToolbarItem(new \Kendo\UI\GridToolbarItem('pdf'))
-    ->addColumn($partnerField,$unitPriceColumn,$catField,$subcatField,$ticketsSoldField,$totalAmount)->dataSource($dataSource)
-    ->sortable(true)->groupable(false)->filterable(true)->columnMenu(true)->pageable($pageable);
+    ->addColumn($catField,$subcatField,$unitPriceColumn,$ticketsSoldField,$totalAmount,$commAmount,$partcommAmount,$dtcmAmount)->dataSource($dataSource)
+    ->sortable(true)->groupable(false)->filterable(true)->columnMenu(false)->pageable($pageable);
 	
 	echo $grid->render();
 	
